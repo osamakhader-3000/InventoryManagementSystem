@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="EmailService/EmailService.csproj" Id="8649ed1e-2270-47b7-b23d-6dd8bbcc751a" />
+  <Project Path="InventoryManagementSystem/InventoryManagementSystem.csproj" />
+  <Project Path="InventoryManagementSystemApplication/InventoryManagementSystemApplication.csproj" />
+  <Project Path="InventoryManagementSystemDataAccess/InventoryManagementSystemDataAccess.csproj" />
+  <Project Path="InventoryManagementSystemDomain/InventoryManagementSystemDomain.csproj" />
+</Solution>
