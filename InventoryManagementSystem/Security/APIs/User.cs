@@ -7,11 +7,11 @@ using System.Security.Claims;
 
 namespace UsersApplicationPresentation.APIs
 {
-    public static class Users
+    public static class User
     {
         public static void Map(WebApplication app, RouteGroupBuilder apiGroup)
         {
-            RouteGroupBuilder userGroup = apiGroup.MapGroup("/users");
+            RouteGroupBuilder userGroup = apiGroup.MapGroup("/user");
             userGroup.MapGet("/list", ListUsers).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
             userGroup.MapGet("/Get/{id}", GetUser).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
             userGroup.MapPut("/changePassword", ChangePassword);
@@ -22,13 +22,13 @@ namespace UsersApplicationPresentation.APIs
             userGroup.MapPost("/listByIds", ListUsersByIds);
         }
 
-        private static async Task<Ok<List<User>>> ListUsersByIds(IUserService usersService, [FromBody] List<Guid> userIds)
+        private static async Task<Ok<List<SecurityApplicationPresentation.DataTransferObjects.User>>> ListUsersByIds(IUserService usersService, [FromBody] List<Guid> userIds)
         {
             List<SecurityApplicationCore.Models.User> users = await usersService.ListUsersByIds(userIds);
             return TypedResults.Ok(users.MapToResource().ToList());
         }
 
-        private static async Task<Results<Ok, InternalServerError<string>, BadRequest<string>>> ChangeUserRole(IUserService usersService, [FromBody] User user)
+        private static async Task<Results<Ok, InternalServerError<string>, BadRequest<string>>> ChangeUserRole(IUserService usersService, [FromBody] SecurityApplicationPresentation.DataTransferObjects.User user)
         {
             if(user == null || user.UserRole == null || user.ID == null || user.ID == Guid.Empty)
                 return TypedResults.BadRequest("invalid user data");
@@ -43,7 +43,7 @@ namespace UsersApplicationPresentation.APIs
             return TypedResults.Ok();
         }
 
-        private static async Task<Results<Ok<User>, NotFound<string>, UnauthorizedHttpResult>> GetUserInfo(HttpContext context, IUserService usersService)
+        private static async Task<Results<Ok<SecurityApplicationPresentation.DataTransferObjects.User>, NotFound<string>, UnauthorizedHttpResult>> GetUserInfo(HttpContext context, IUserService usersService)
         {
             string? userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)            
@@ -53,7 +53,7 @@ namespace UsersApplicationPresentation.APIs
             if (user == null)
                 return TypedResults.NotFound("user not found");
 
-            return TypedResults.Ok<User>(user.MapToResource());
+            return TypedResults.Ok<SecurityApplicationPresentation.DataTransferObjects.User>(user.MapToResource());
         }
 
         private static async Task<Results<Ok, BadRequest<string>>> Activate(IUserService usersService, [FromRoute] Guid id)
@@ -101,19 +101,19 @@ namespace UsersApplicationPresentation.APIs
 
         }
 
-        public static async Task<Ok<List<User>>> ListUsers(IUserService usersService)
+        public static async Task<Ok<List<SecurityApplicationPresentation.DataTransferObjects.User>>> ListUsers(IUserService usersService)
         {
             List<SecurityApplicationCore.Models.User> users = await usersService.ListUsers();
             return TypedResults.Ok(users.MapToResource().ToList());
         }
 
 
-        public static async Task<Results<Ok<User>, NotFound<string>>> GetUser(IUserService usersService, [FromRoute] Guid id)
+        public static async Task<Results<Ok<SecurityApplicationPresentation.DataTransferObjects.User>, NotFound<string>>> GetUser(IUserService usersService, [FromRoute] Guid id)
         {
             SecurityApplicationCore.Models.User? user = await usersService.GetUser(id);
             if (user == null)
                 return TypedResults.NotFound("user not found");
-            return TypedResults.Ok<User>(user.MapToResource());
+            return TypedResults.Ok<SecurityApplicationPresentation.DataTransferObjects.User>(user.MapToResource());
         }
 
 
