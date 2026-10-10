@@ -27,13 +27,6 @@ namespace UsersApplicationPresentation.APIs
             authGroup.MapGet("/currentUser", GetCurrentUser);
             authGroup.MapPut("/verifyEmailToken", VerifyEmailToken).AllowAnonymous();
             authGroup.MapGet("/resendVerificationEmail", ResendVerificationEmail);
-            authGroup.MapGet("/test", TestEnd).AllowAnonymous();
-        }
-
-        private static async Task<IResult> TestEnd(IEventEmitter eventEmitter)
-        {
-            await eventEmitter.EmitEvent("UserRegistered","simple test");
-            return TypedResults.Ok("Event emitted successfully");
         }
 
 
@@ -41,31 +34,31 @@ namespace UsersApplicationPresentation.APIs
         {
             string? userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == null)            
+            if (userId == null)
                 return TypedResults.Unauthorized();
-            
+
             Guid userGuid = Guid.Parse(userId);
             SecurityApplicationCore.Models.User? user = await usersService.GetUser(userGuid);
 
-            if (user == null)            
+            if (user == null)
                 return TypedResults.Unauthorized();
-            
-            if (user.EmailVerificationStatus == SecurityApplicationCore.Models.UserEmailVerificationStatus.Verified)            
+
+            if (user.EmailVerificationStatus == SecurityApplicationCore.Models.UserEmailVerificationStatus.Verified)
                 return TypedResults.BadRequest("Email is already verified.");
-            
+
             await usersService.SendAccountVerificationEmail(user);
             return TypedResults.Ok();
         }
 
 
         private static async Task<Results<Ok<bool>, BadRequest<string>, InternalServerError<string>>> VerifyEmailToken(HttpContext http, IUserService usersService, [FromBody] TokenHolder token)
-        {                      
+        {
 
-            if(token is null || string.IsNullOrEmpty(token.Token))
+            if (token is null || string.IsNullOrEmpty(token.Token))
                 return TypedResults.BadRequest("Token must be provided.");
 
             bool result = await usersService.VerifyEmailToken(token.Token);
-            if (result) 
+            if (result)
                 return TypedResults.Ok(true);
             else
                 return TypedResults.InternalServerError("Email verification failed. The token may be invalid or expired.");
@@ -127,7 +120,7 @@ namespace UsersApplicationPresentation.APIs
             {
                 return TypedResults.BadRequest("Email claim not found.");
             }
-                    
+
 
             string name = authResult.Principal.FindFirstValue(ClaimTypes.Name) ?? authResult.Principal.Identity?.Name ?? authResult.Principal.FindFirstValue("name") ?? string.Empty;
 
@@ -142,7 +135,7 @@ namespace UsersApplicationPresentation.APIs
         }
 
 
-        private static async Task<Results<BadRequest<string>, UnauthorizedHttpResult, Ok<DateTime>,InternalServerError<string>>> Refresh(HttpContext http, IUsersTokenService usersTokenService, IUserService usersService, ICookiesService cookiesService)
+        private static async Task<Results<BadRequest<string>, UnauthorizedHttpResult, Ok<DateTime>, InternalServerError<string>>> Refresh(HttpContext http, IUsersTokenService usersTokenService, IUserService usersService, ICookiesService cookiesService)
         {
 
             var refreshToken = http.Request.Cookies["refresh_token"];
@@ -168,21 +161,9 @@ namespace UsersApplicationPresentation.APIs
         public static async Task<Results<BadRequest<string>, UnauthorizedHttpResult, InternalServerError<string>, Ok<DateTime>>> Login(HttpContext http, IUsersTokenService usersTokenService, IUserService usersService, ICookiesService cookiesService, [FromBody] LoginRequest request)
         {
             if (request.Username == null || request.Password == null)
-            {
                 return TypedResults.BadRequest("Username and password must be provided.");
-            }
 
             SecurityApplicationCore.Models.User user = await usersService.GetValidatedUser(request.Username, request.Password);
-            if (user is null)
-            {
-                return TypedResults.Unauthorized();
-            }
-
-            if(user.AccountStatus == SecurityApplicationCore.Models.UserAccountStatus.Suspended || user.AccountStatus == SecurityApplicationCore.Models.UserAccountStatus.Deleted)
-            {
-                return TypedResults.InternalServerError("You are suspended or deleted. Please contact support.");
-            }
-
 
             SecurityApplicationCore.Models.AccessToken? accessToken = await SecurityApplicationPresentation.Cookies.CookiesSupplier.AppendUserTokens(http.Response.Cookies, user, usersTokenService);
 
@@ -190,35 +171,26 @@ namespace UsersApplicationPresentation.APIs
 
         }
 
-        public static async Task<Results<BadRequest<string>, InternalServerError<string>, Ok<DateTime>>> CreateLocalAccount(HttpContext http, ICookiesService cookiesService, IUsersTokenService usersTokenService, IUserService usersService,IEventEmitter eventEmitter, [FromBody] Account request)
+        public static async Task<Results<BadRequest<string>, InternalServerError<string>, Ok<DateTime>>> CreateLocalAccount(HttpContext http, ICookiesService cookiesService, IUsersTokenService usersTokenService, IUserService usersService, [FromBody] Account request)
         {
-
-            if (request.Username == null || request.Password == null || request.Email == null)
-            {
-                return TypedResults.BadRequest("Username, password and email must be provided.");
-            }
+            if (request.Username == null || request.Password == null || request.Email == null)            
+                return TypedResults.BadRequest("Username, password and email must be provided.");            
 
             request.Username = request.Username.Trim();
             request.Email = request.Email.Trim();
 
-
             SecurityApplicationCore.Models.User user = await usersService.CreateNewLocalAccount(request.Username, request.Email, request.Password);
 
-            if (user == null)
-            {
+            if (user == null)            
                 return TypedResults.InternalServerError("User account creation failed");
-            }
-
-            //await usersService.SendAccountVerificationEmail(user);
+            
+            usersService.SendAccountVerificationEmail(user);
 
             SecurityApplicationCore.Models.AccessToken? accessToken = await SecurityApplicationPresentation.Cookies.CookiesSupplier.AppendUserTokens(http.Response.Cookies, user, usersTokenService);
 
-          // await eventEmitter.EmitEvent("UserRegistered", $"New user registered with email: {user.Email} , username: {user.Username} and id: {user.Id}");
-
             return TypedResults.Ok(accessToken.ExpiresAt);
-
         }
-                
+
 
         public static async Task<IResult> Logout(HttpContext context, IUsersTokenService usersTokenService)
         {
