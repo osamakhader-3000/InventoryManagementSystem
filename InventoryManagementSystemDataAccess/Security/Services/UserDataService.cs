@@ -70,7 +70,7 @@ namespace SecurityApplicationDataAccess.Services
 
         public async Task<SecurityApplicationCore.Models.User> VerifyPassword(string username, string password)
         {
-            SecurityApplicationDataAccess.Models.User? user = await _context.Users.FirstOrDefaultAsync(u => u.UserName != null && u.UserName == username);
+            SecurityApplicationDataAccess.Models.User? user = await _context.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.UserName != null && u.UserName == username);
 
             if (user is null)
             {
@@ -97,7 +97,7 @@ namespace SecurityApplicationDataAccess.Services
                 user.LocalAccount??true,
                 user.EmailVerificationStatus == null ? SecurityApplicationCore.Models.UserEmailVerificationStatus.Unverified : (SecurityApplicationCore.Models.UserEmailVerificationStatus)user.EmailVerificationStatus,
                 user.AccountStatus == null ? SecurityApplicationCore.Models.UserAccountStatus.Deleted : (SecurityApplicationCore.Models.UserAccountStatus)user.AccountStatus,
-                new List<SecurityApplicationCore.Models.Role>()
+                user.UserRoles?.ToCoreModel().ToList() ?? new List<SecurityApplicationCore.Models.Role>()
             );
 
             return userDomainModel;
