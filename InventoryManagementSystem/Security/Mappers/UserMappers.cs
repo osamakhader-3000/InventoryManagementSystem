@@ -11,7 +11,7 @@
                 Email = user.Email,
                 AccountStatus = (byte)user.AccountStatus,
                 EmailVerificationStatus = (byte)user.EmailVerificationStatus,
-                UserRole = Guid.Empty,
+                UserRole = user.Roles.FirstOrDefault()?.Id,
                 LocalAccount = user.LocalAccount
             };
         }

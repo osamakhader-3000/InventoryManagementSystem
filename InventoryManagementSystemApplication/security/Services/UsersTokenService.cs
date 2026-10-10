@@ -67,9 +67,14 @@ namespace SecurityApplicationLogic.Services
                 new Claim(nameof(UserEmailVerificationStatus), ((int)user.EmailVerificationStatus).ToString()),
             };
 
-            foreach (var role in user.Roles.Where(r => r != null))            
+            foreach (var role in user.Roles.Where(r => r != null))
                 claims.Add(new Claim(ClaimTypes.Role, role.Name ?? string.Empty));
-            
+
+           
+            Guid? userRoleId = user.Roles.FirstOrDefault(r => r != null)?.Id;
+            if (userRoleId != null)
+                claims.Add(new Claim(nameof(UserRole), userRoleId.Value.ToString()));
+
 
             extraClaims?.ToList().ForEach(claim => claims.Add(claim));
             return claims;
