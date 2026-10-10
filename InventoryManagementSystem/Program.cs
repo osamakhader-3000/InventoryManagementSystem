@@ -174,9 +174,11 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 var apiGroup = app.MapGroup("/api");
 //apiGroup.AddEndpointFilter<SingleFlightSameResponseFilter>();
 
+var securityGroup = apiGroup.MapGroup("/security");
+
 await app.SeedRolesAsync();
 
-UsersApplicationPresentation.APIs.Users.Map(app, apiGroup);
-UsersApplicationPresentation.APIs.Authentication.Map(app, apiGroup, builder.Configuration);
+UsersApplicationPresentation.APIs.User.Map(app, securityGroup);
+UsersApplicationPresentation.APIs.Authentication.Map(app, securityGroup, builder.Configuration);
 
 app.Run();
