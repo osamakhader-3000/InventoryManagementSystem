@@ -67,5 +67,40 @@ namespace SecurityApplicationDataAccess.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<SecurityApplicationCore.Models.User> VerifyPassword(string username, string password)
+        {
+            SecurityApplicationDataAccess.Models.User? user = await _context.Users.FirstOrDefaultAsync(u => u.UserName != null && u.UserName == username);
+
+            if (user is null)
+            {
+                throw new UnauthorizedAccessException("Invalid username or password.");
+            }
+
+            if (user.PasswordHash is null)
+            {
+                throw new UnauthorizedAccessException("Invalid username or password.");
+            }
+
+
+            bool isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
+            if (!isPasswordValid)
+            {
+                throw new UnauthorizedAccessException("Invalid username or password.");
+            }
+
+            SecurityApplicationCore.Models.User userDomainModel = SecurityApplicationCore.Models.User.Reconstitute(
+                user.Id,
+                user.Email??string.Empty,
+                user.UserName,
+                user.PasswordHash,
+                user.LocalAccount??true,
+                user.EmailVerificationStatus == null ? SecurityApplicationCore.Models.UserEmailVerificationStatus.Unverified : (SecurityApplicationCore.Models.UserEmailVerificationStatus)user.EmailVerificationStatus,
+                user.AccountStatus == null ? SecurityApplicationCore.Models.UserAccountStatus.Deleted : (SecurityApplicationCore.Models.UserAccountStatus)user.AccountStatus,
+                new List<SecurityApplicationCore.Models.Role>()
+            );
+
+            return userDomainModel;
+        }
     }
 }

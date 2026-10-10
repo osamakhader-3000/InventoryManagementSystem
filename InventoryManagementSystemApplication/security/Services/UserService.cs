@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using SecurityApplicationCore.Models;
 using SecurityApplicationLogic.Interfaces;
 using SecurityApplicationLogic.IRepositories;
@@ -259,6 +260,7 @@ namespace SecurityApplicationLogic.Services
 
         public async Task<User> GetValidatedUser(string username, string password)
         {
+            /*
             SecurityApplicationCore.Models.User? user = await _usersRepository.FindUserByUsername(username);
 
             if (user is null)
@@ -270,13 +272,16 @@ namespace SecurityApplicationLogic.Services
             {
                 throw new UnauthorizedAccessException("Invalid username or password.");
             }
+            */
 
-            bool verified = PasswordHasher.VerifyPassword(password, user.Password);
+            SecurityApplicationCore.Models.User user = await _userAccountService.VerifyPassword(username,password);
 
-            if (!verified)
-            {
+            if (user is null)            
                 throw new UnauthorizedAccessException("Invalid username or password.");
-            }
+            
+
+            if (user.AccountStatus == UserAccountStatus.Suspended)            
+                throw new UnauthorizedAccessException("You are suspended. Please contact support.");            
 
             return user;
         }

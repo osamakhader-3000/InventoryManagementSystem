@@ -13,5 +13,6 @@ namespace SecurityApplicationLogic.Interfaces
         Task<IReadOnlyList<string>> GetRolesAsync(Guid userId);
         Task<SecurityApplicationCore.Models.User?> FindByEmailAsync(string email);
         Task<SecurityApplicationCore.Models.User?> FindByIdAsync(Guid userId);
+        Task<SecurityApplicationCore.Models.User> VerifyPassword(string username, string password);
     }
 }
