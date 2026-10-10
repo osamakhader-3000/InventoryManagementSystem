@@ -124,6 +124,25 @@ namespace SecurityApplicationCore.Models
             foreach (Role role in roles)            
                 AddRole(role);            
         }
+
+        public static User Reconstitute(
+        Guid id, string email, string? userName, string? passwordHash, bool localAccount,
+        UserEmailVerificationStatus emailStatus, UserAccountStatus accountStatus,
+        IEnumerable<Role> roles)
+        {
+            var user = new User(id)
+            {
+                Email = email,
+                Username = userName,
+                Password = passwordHash,
+                LocalAccount = localAccount,
+                EmailVerificationStatus = emailStatus,
+                AccountStatus = accountStatus
+            };
+            user._roles.AddRange(roles);
+            return user;
+        }
+
     }
 
 
@@ -148,6 +167,15 @@ namespace SecurityApplicationCore.Models
         Employee = 1,
         TechnicalSupport = 2,
         Administrator = 3
+    }
+
+    public enum LoginResult
+    {
+        Success,
+        InvalidCredentials,
+        AccountSuspended,
+        AccountDeleted,
+        EmailNotVerified
     }
 
 
