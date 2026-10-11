@@ -27,4 +27,8 @@
     <ProjectReference Include="..\InventoryManagementSystemDomain\InventoryManagementSystemDomain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Mappers\Inventory\" />
+  </ItemGroup>
+
 </Project>

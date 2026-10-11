@@ -1,3 +1,5 @@
+using InventoryManagementSystemDataAccess.Configuration;
+using InventoryManagementSystemDataAccess.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SecurityApplicationCore.Configuration;
-using SecurityApplicationDataAccess.Configuration;
 using SecurityApplicationLogic.Interfaces;
 using SecurityApplicationPresentation.AuthorizationPolicies;
 using SecurityApplicationPresentation.Bootstrap;
@@ -28,7 +29,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = builder.Configuration["Redis:InstanceName"];
 });
 
-builder.Services.AddScoped<IUserDataService, SecurityApplicationDataAccess.Services.UserDataService>();
+builder.Services.AddScoped<IUserDataService, UserDataService>();
 
 
 builder.Services.AddScoped<SecurityApplicationLogic.Interfaces.IEmailSender, EmailService.Services.EmailSender>();
@@ -180,5 +181,9 @@ await app.SeedRolesAsync();
 
 UsersApplicationPresentation.APIs.User.Map(app, securityGroup);
 UsersApplicationPresentation.APIs.Authentication.Map(app, securityGroup, builder.Configuration);
+
+var inventoryGroup = apiGroup.MapGroup("/inventory");
+
+InventoryManagementSystem.Inventory.APIs.Department.Map(app, inventoryGroup);
 
 app.Run();

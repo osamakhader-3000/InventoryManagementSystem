@@ -13,6 +13,10 @@ namespace SecurityApplicationCore.Configuration
             services.Configure<SecurityApplicationLogic.Settings.JwtSettings>(configuration.GetSection("JwtSettings"));
             services.Configure<SecurityApplicationLogic.Settings.EmailVerificaionSettings>(configuration.GetSection("EmailVerificaionSettings"));
             services.Configure<SecurityApplicationLogic.Settings.ActivateAccountSettings>(configuration.GetSection("ActivateAccountSettings"));
+
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IDepartmentService, InventoryManagementSystemApplication.inventory.Services.DepartmentService>();
+
+
             return services;
         }
     }
