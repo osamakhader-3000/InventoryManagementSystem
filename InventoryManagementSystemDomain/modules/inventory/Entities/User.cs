@@ -24,5 +24,15 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 Name = name
             };
         }
+
+        public static User? Reconstitute(Guid id, string name, Department? department)
+        {
+            if (id == Guid.Empty || string.IsNullOrWhiteSpace(name) || department == null)
+                return null;
+            return new User(id, department)
+            {
+                Name = name
+            };
+        }
     }
 }

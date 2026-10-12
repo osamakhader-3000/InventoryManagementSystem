@@ -9,9 +9,11 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
      
         public Int64 Id { get; set; }
 
-        public Device Device { get; set; } = new Device();
+        public Guid DeviceId { get; set; }
+        public Device Device { get; set; } = null!;
 
-        public User AssignedUser { get; set; } = new User();
+        public Guid AssignedUserId { get; set; }
+        public User AssignedUser { get; set; } = null!;
 
         public DateTime? AssignmentDate { get; set; }
 

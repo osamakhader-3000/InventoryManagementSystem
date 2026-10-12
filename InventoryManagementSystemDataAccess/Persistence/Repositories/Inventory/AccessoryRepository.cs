@@ -1,0 +1,54 @@
+﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
+using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Invent = InventoryManagementSystemDataAccess.Models.Inventory;
+
+namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
+{
+    public class AccessoryRepository : IAccessoryRepository
+    {
+        private readonly SecurityApplicationDataAccessContext _context;
+        public AccessoryRepository(SecurityApplicationDataAccessContext context)
+        {
+            _context = context;
+        }
+
+        public Task Create(Accessory accessory)
+        {
+            _context.InventoryAccessories.Add(accessory.ToDataAccessModel());
+            return _context.SaveChangesAsync();
+        }
+
+        public Task Delete(Guid id)
+        {
+            _context.InventoryAccessories.Remove(new Invent.Accessory { Id = id });
+            return _context.SaveChangesAsync();
+        }
+
+        public async Task<Accessory?> GetById(Guid id)
+        {
+            Invent.Accessory? dbAccessory = await _context.InventoryAccessories.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (dbAccessory == null)
+                return null;
+
+            return dbAccessory.ToDomainModel();
+        }
+
+        public async Task<List<Accessory>> ListAll()
+        {
+            var dbAccessorys = await _context.InventoryAccessories.ToListAsync();
+            return dbAccessorys.ToDomainModelList(x => x.ToDomainModel());
+        }
+
+        public Task Update(Accessory accessory)
+        {
+            _context.InventoryAccessories.Update(accessory.ToDataAccessModel());
+            return _context.SaveChangesAsync();
+        }
+    }
+}

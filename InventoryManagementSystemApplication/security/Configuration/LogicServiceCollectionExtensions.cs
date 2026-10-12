@@ -15,6 +15,10 @@ namespace SecurityApplicationCore.Configuration
             services.Configure<SecurityApplicationLogic.Settings.ActivateAccountSettings>(configuration.GetSection("ActivateAccountSettings"));
 
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IDepartmentService, InventoryManagementSystemApplication.inventory.Services.DepartmentService>();
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IAccessoryService, InventoryManagementSystemApplication.inventory.Services.AccessoryService>();
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IDeviceService, InventoryManagementSystemApplication.inventory.Services.DeviceService>();
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IUserService, InventoryManagementSystemApplication.inventory.Services.UserService>();
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IAssignmentService, InventoryManagementSystemApplication.inventory.Services.AssignmentService>();
 
 
             return services;

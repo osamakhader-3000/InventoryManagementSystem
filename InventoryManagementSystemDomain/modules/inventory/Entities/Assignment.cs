@@ -22,7 +22,13 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         private readonly List<Accessory> _accessories = new();
 
-        
+        private Assignment(long? id, Device device, User assignedUser)
+        {
+            Id = id;
+            Device = device;
+            AssignedUser = assignedUser;
+        }
+
         public static Assignment Create(
             Device device,
             User assignedUser,
@@ -31,10 +37,31 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             IEnumerable<Accessory> accessories,
             string remarks)
         {
-            var assignment = new Assignment
+            var assignment = new Assignment(null, device, assignedUser)
             {
-                Device = device,
-                AssignedUser = assignedUser,
+                AssignmentDate = assignmentDate,
+                ReturnDate = returnDate,
+                Remarks = remarks
+            };
+
+            assignment._accessories.AddRange(accessories);
+            return assignment;
+        }
+
+        public static Assignment? Reconstitute(
+            long id,
+            Device? device,
+            User? assignedUser,
+            DateTime? assignmentDate,
+            DateTime? returnDate,
+            IEnumerable<Accessory> accessories,
+            string remarks)
+        {
+            if (id <= 0 || device == null || assignedUser == null)
+                return null;
+
+            var assignment = new Assignment(id, device, assignedUser)
+            {
                 AssignmentDate = assignmentDate,
                 ReturnDate = returnDate,
                 Remarks = remarks

@@ -1,4 +1,4 @@
-using InventoryManagementSystemDataAccess.Configuration;
+﻿using InventoryManagementSystemDataAccess.Configuration;
 using InventoryManagementSystemDataAccess.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -185,5 +185,9 @@ UsersApplicationPresentation.APIs.Authentication.Map(app, securityGroup, builder
 var inventoryGroup = apiGroup.MapGroup("/inventory");
 
 InventoryManagementSystem.Inventory.APIs.Department.Map(app, inventoryGroup);
+InventoryManagementSystem.Inventory.APIs.Accessory.Map(app, inventoryGroup);
+InventoryManagementSystem.Inventory.APIs.Device.Map(app, inventoryGroup);
+InventoryManagementSystem.Inventory.APIs.User.Map(app, inventoryGroup);
+InventoryManagementSystem.Inventory.APIs.Assignment.Map(app, inventoryGroup);
 
 app.Run();

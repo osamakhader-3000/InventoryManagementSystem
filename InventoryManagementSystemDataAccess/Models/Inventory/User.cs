@@ -9,6 +9,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public Department Department { get; set; } = new Department();
+        public Guid DepartmentId { get; set; }
+        public Department Department { get; set; } = null;
     }
 }
