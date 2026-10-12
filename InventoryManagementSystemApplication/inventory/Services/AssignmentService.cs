@@ -18,9 +18,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             return await _assignmentRepository.Create(assignment);
         }
-        public async Task<List<Assignment>> List()
+        public async Task<List<Assignment>> List(Guid? userId, Guid? depId, DateTime? purDate)
         {
-            return await _assignmentRepository.ListAll();
+            return await _assignmentRepository.ListAll(userId, depId, purDate);
         }
         public async Task<Assignment?> Get(long assignmentId)
         {

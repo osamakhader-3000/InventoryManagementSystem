@@ -27,8 +27,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 device.Specs,
                 device.PurchasedDate,
                 device.RetirementDate,
-                (decimal)device.Price,
-                (decimal)device.SoldPrice,
+                (double)device.Price,
+                (double)device.SoldPrice,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)device.OperatingSystem);
         }
 

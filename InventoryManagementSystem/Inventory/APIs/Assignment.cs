@@ -17,9 +17,13 @@ namespace InventoryManagementSystem.Inventory.APIs
             assignmentGroup.MapDelete("/delete/{id}", DeleteAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListAssignments([FromServices] IAssignmentService assignmentService)
+        private static async Task<IResult> ListAssignments(
+            [FromServices] IAssignmentService assignmentService,
+            Guid? userid,
+            Guid? depid,
+            DateTime? purDate)
         {
-            var assignments = await assignmentService.List();
+            var assignments = await assignmentService.List(userid, depid, purDate);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.AssignmentMapper.ToDtoList(assignments));
         }
 
@@ -38,29 +42,40 @@ namespace InventoryManagementSystem.Inventory.APIs
             [FromServices] IAccessoryService accessoryService,
             [FromBody] Dto.Assignment dtoAssignment)
         {
-            var device = await deviceService.Get(dtoAssignment.DeviceId);
+            if(dtoAssignment.Device == null)
+                return Results.BadRequest("Device is required");
+
+            var device = await deviceService.Get(dtoAssignment.Device.Id);
             if (device == null)
                 return Results.BadRequest("Device not found");
+            
+            if(dtoAssignment.AssignedUser == null)
+                return Results.BadRequest("Assigned user is required");
 
-            var assignedUser = await userService.Get(dtoAssignment.AssignedUserId);
+            var assignedUser = await userService.Get(dtoAssignment.AssignedUser.Id);
             if (assignedUser == null)
                 return Results.BadRequest("User not found");
 
-            var accessories = await GetAccessories(accessoryService, dtoAssignment.AccessoryIds);
+            var accessories = await accessoryService.ListByIds(dtoAssignment.Accessories.Select(a => a.Id).ToList());
             if (accessories == null)
                 return Results.BadRequest("Accessory not found");
+
+            var missingAccessoryIds = dtoAssignment.Accessories.Select(a => a.Id).Except(accessories.Select(a => a.Id)).ToList();
+            if (missingAccessoryIds.Any())
+                return Results.BadRequest($"Accessories not found: {string.Join(", ", missingAccessoryIds)}");
 
             DomainEntities.Assignment assignment = DomainEntities.Assignment.Create(
                 device,
                 assignedUser,
-                dtoAssignment.AssignmentDate,
-                dtoAssignment.ReturnDate,
+                DateTime.UtcNow,
+                null,
                 accessories,
                 dtoAssignment.Remarks);
 
             var createdAssignmentId = await assignmentService.Create(assignment);
             return Results.Created($"/assignment/Get/{createdAssignmentId}", new { Id = createdAssignmentId });
         }
+             
 
         private static async Task<IResult> UpdateAssignment(
             [FromServices] IAssignmentService assignmentService,
@@ -69,28 +84,40 @@ namespace InventoryManagementSystem.Inventory.APIs
             [FromServices] IAccessoryService accessoryService,
             [FromBody] Dto.Assignment dtoAssignment)
         {
-            var device = await deviceService.Get(dtoAssignment.DeviceId);
+            if (dtoAssignment.Device == null)
+                return Results.BadRequest("Device is required");
+
+            var device = await deviceService.Get(dtoAssignment.Device.Id);
             if (device == null)
                 return Results.BadRequest("Device not found");
 
-            var assignedUser = await userService.Get(dtoAssignment.AssignedUserId);
+            if (dtoAssignment.AssignedUser == null)
+                return Results.BadRequest("Assigned user is required");
+
+            var assignedUser = await userService.Get(dtoAssignment.AssignedUser.Id);
             if (assignedUser == null)
                 return Results.BadRequest("User not found");
 
-            var accessories = await GetAccessories(accessoryService, dtoAssignment.AccessoryIds);
+            var accessories = await accessoryService.ListByIds(dtoAssignment.Accessories.Select(a => a.Id).ToList());
             if (accessories == null)
                 return Results.BadRequest("Accessory not found");
+
+            var missingAccessoryIds = dtoAssignment.Accessories.Select(a => a.Id).Except(accessories.Select(a => a.Id)).ToList();
+            if (missingAccessoryIds.Any())
+                return Results.BadRequest($"Accessories not found: {string.Join(", ", missingAccessoryIds)}");
 
             DomainEntities.Assignment? assignment = DomainEntities.Assignment.Reconstitute(
                 dtoAssignment.Id,
                 device,
                 assignedUser,
-                dtoAssignment.AssignmentDate,
-                dtoAssignment.ReturnDate,
+                null,
+                null,
                 accessories,
                 dtoAssignment.Remarks);
+
             if (assignment == null)
                 return Results.BadRequest();
+
             await assignmentService.Update(assignment);
             return Results.NoContent();
         }
@@ -100,18 +127,6 @@ namespace InventoryManagementSystem.Inventory.APIs
             await assignmentService.Delete(id);
             return Results.NoContent();
         }
-
-        private static async Task<List<DomainEntities.Accessory>?> GetAccessories(IAccessoryService accessoryService, IEnumerable<Guid> accessoryIds)
-        {
-            var accessories = new List<DomainEntities.Accessory>();
-            foreach (var accessoryId in accessoryIds.Distinct())
-            {
-                var accessory = await accessoryService.Get(accessoryId);
-                if (accessory == null)
-                    return null;
-                accessories.Add(accessory);
-            }
-            return accessories;
-        }
+             
     }
 }

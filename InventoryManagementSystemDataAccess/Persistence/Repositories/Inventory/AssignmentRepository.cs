@@ -69,9 +69,24 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAssignment.ToDomainModel();
         }
 
-        public async Task<List<Assignment>> ListAll()
+        public async Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate)
         {
-            var dbAssignments = await AssignmentsWithDetails().ToListAsync();
+            var query = AssignmentsWithDetails();
+
+            if (userId.HasValue)
+                query = query.Where(x => x.AssignedUserId == userId.Value);
+
+            if (depId.HasValue)
+                query = query.Where(x => x.AssignedUser.DepartmentId == depId.Value);
+
+            if (purDate.HasValue)
+            {
+                var purchaseDate = purDate.Value.Date;
+                var nextDay = purchaseDate.AddDays(1);
+                query = query.Where(x => x.Device.PurchasedDate >= purchaseDate && x.Device.PurchasedDate < nextDay);
+            }
+
+            var dbAssignments = await query.ToListAsync();
             return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
         }
 

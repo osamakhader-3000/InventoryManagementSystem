@@ -16,5 +16,6 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
         public Task Update(Accessory accessory);
 
         public Task Delete(Guid accessoryId);
+        public Task<IEnumerable<Accessory>> ListByIds(List<Guid> ids);
     }
 }

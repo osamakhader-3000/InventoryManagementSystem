@@ -45,6 +45,12 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAccessorys.ToDomainModelList(x => x.ToDomainModel());
         }
 
+        public async Task<IEnumerable<Accessory>> ListByIds(List<Guid> ids)
+        {
+            var dbAccessories = await _context.InventoryAccessories.Where(x => ids.Contains(x.Id)).ToListAsync();
+            return dbAccessories.ToDomainModelList(x => x.ToDomainModel());
+        }
+
         public Task Update(Accessory accessory)
         {
             _context.InventoryAccessories.Update(accessory.ToDataAccessModel());

@@ -23,6 +23,13 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             return await _accessoryRepository.ListAll();
         }
+
+     
+        public async Task<IEnumerable<Accessory>> ListByIds(List<Guid> ids)
+        {
+            return await _accessoryRepository.ListByIds(ids);
+        }
+
         public async Task<Accessory?> Get(Guid accessoryId)
         {
             return await _accessoryRepository.GetById(accessoryId);

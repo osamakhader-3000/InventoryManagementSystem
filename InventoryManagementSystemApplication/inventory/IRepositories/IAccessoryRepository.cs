@@ -12,5 +12,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
         Task<List<Accessory>> ListAll();
         Task Update(Accessory accessory);
         Task Delete(Guid id);
+        Task<IEnumerable<Accessory>> ListByIds(List<Guid> ids);
     }
 }
