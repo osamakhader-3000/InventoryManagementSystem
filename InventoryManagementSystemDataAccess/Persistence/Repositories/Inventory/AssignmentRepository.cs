@@ -106,5 +106,14 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)
+        {
+            var dbAssignments = await AssignmentsWithDetails()
+                .Where(a => a.Accessories.Any(ac => ac.Id == accessoryId))
+                .ToListAsync();
+            return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
+        }
+
     }
 }

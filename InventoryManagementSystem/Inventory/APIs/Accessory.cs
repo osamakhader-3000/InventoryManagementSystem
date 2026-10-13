@@ -1,7 +1,8 @@
 using InventoryManagementSystemApplication.inventory.Interfaces;
+using InventoryManagementSystemApplication.inventory.Services;
 using Microsoft.AspNetCore.Mvc;
-using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 using DomainEntities = InventoryManagementSystemDomain.modules.inventory.Entities;
+using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 
 namespace InventoryManagementSystem.Inventory.APIs
 {
@@ -17,9 +18,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             accessoryGroup.MapDelete("/delete/{id}", DeleteAccessory).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListAccessories([FromServices] IAccessoryService accessoryService)
+        private static async Task<IResult> ListAccessories([FromServices] IAccessoryService accessoryService,string? name,int? stock)
         {
-            var accessories = await accessoryService.List();
+            var accessories = await accessoryService.List(name,stock==0?false:true);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.AccessoryMapper.ToDtoList(accessories));
         }
 
@@ -39,17 +40,32 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Created($"/accessory/Get/{createdAccessoryId}", new { Id = createdAccessoryId });
         }
 
-        private static async Task<IResult> UpdateAccessory([FromServices] IAccessoryService accessoryService, [FromBody] Dto.Accessory dtoAccessory)
+        private static async Task<IResult> UpdateAccessory([FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, [FromBody] Dto.Accessory dtoAccessory)
         {
             DomainEntities.Accessory? accessory = DomainEntities.Accessory.Reconstitute(dtoAccessory.Id, dtoAccessory.Name, dtoAccessory.Quantity, dtoAccessory.Date);
             if (accessory == null)
                 return Results.BadRequest();
+
+            var assignmentsWithAccessory = await assignmentService.ListByAccessoryId(dtoAccessory.Id);
+
+            if(dtoAccessory.Quantity < assignmentsWithAccessory.Count())
+            {
+                return Results.BadRequest("Cannot update accessory because the new quantity is less than the quantity already assigned to assignments.");
+            }
+
             await accessoryService.Update(accessory);
             return Results.NoContent();
         }
 
-        private static async Task<IResult> DeleteAccessory([FromServices] IAccessoryService accessoryService, Guid id)
+        private static async Task<IResult> DeleteAccessory([FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, Guid id)
         {
+            var assignmentsWithAccessory = await assignmentService.ListByAccessoryId(id);
+
+            if(assignmentsWithAccessory.Any())
+            {
+                return Results.BadRequest("Cannot delete accessory because it is assigned to one or more assignments.");
+            }
+
             await accessoryService.Delete(id);
             return Results.NoContent();
         }

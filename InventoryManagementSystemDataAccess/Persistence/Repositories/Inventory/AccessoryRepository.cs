@@ -51,6 +51,24 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAccessories.ToDomainModelList(x => x.ToDomainModel());
         }
 
+        public async Task<List<Accessory>> List(string? name,bool? stock)
+        {
+            var query = _context.InventoryAccessories.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(x => x.Name.Contains(name));
+            }
+
+            if (stock.HasValue)
+            {
+                query = query.Where(x => x.Quantity > 0 && stock == true || x.Quantity == 0 && stock == false || !stock.HasValue);
+            }
+
+            var dbAccessories = await query.ToListAsync();
+            return dbAccessories.ToDomainModelList(x => x.ToDomainModel());
+        }
+
         public Task Update(Accessory accessory)
         {
             _context.InventoryAccessories.Update(accessory.ToDataAccessModel());

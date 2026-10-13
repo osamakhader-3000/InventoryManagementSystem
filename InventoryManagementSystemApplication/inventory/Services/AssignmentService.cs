@@ -18,6 +18,7 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             return await _assignmentRepository.Create(assignment);
         }
+
         public async Task<List<Assignment>> List(Guid? userId, Guid? depId, DateTime? purDate)
         {
             return await _assignmentRepository.ListAll(userId, depId, purDate);
@@ -33,6 +34,11 @@ namespace InventoryManagementSystemApplication.inventory.Services
         public async Task Delete(long assignmentId)
         {
             await _assignmentRepository.Delete(assignmentId);
+        }
+
+        public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)
+        {
+            return await _assignmentRepository.ListByAccessoryId(accessoryId);
         }
     }
 }
