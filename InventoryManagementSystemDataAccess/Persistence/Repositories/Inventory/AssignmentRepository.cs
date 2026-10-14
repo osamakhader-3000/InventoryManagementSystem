@@ -22,13 +22,14 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return _context.InventoryAssignments
                 .Include(x => x.Device)
                 .Include(x => x.AssignedUser).ThenInclude(x => x.Department)
-                .Include(x => x.Accessories);
+                .Include(x => x.AssignedUser).ThenInclude(x => x.Location)
+                .Include(x => x.AssignmentAccessories).ThenInclude(x => x.Accessory);
         }
 
-        private async Task<List<Invent.Accessory>> LoadAccessories(Assignment assignment)
+        private async Task<List<Guid>> LoadAccessoryIds(Assignment assignment)
         {
-            var accessoryIds = assignment.Accessories.Select(x => x.Id).ToList();
-            return await _context.InventoryAccessories.Where(x => accessoryIds.Contains(x.Id)).ToListAsync();
+            var accessoryIds = assignment.Accessories.Select(x => x.Id).Distinct().ToList();
+            return await _context.InventoryAccessories.Where(x => accessoryIds.Contains(x.Id)).Select(x => x.Id).ToListAsync();
         }
 
         public async Task<long> Create(Assignment assignment)
@@ -40,7 +41,9 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 AssignmentDate = assignment.AssignmentDate,
                 ReturnDate = assignment.ReturnDate,
                 Remarks = assignment.Remarks,
-                Accessories = await LoadAccessories(assignment)
+                AssignmentAccessories = (await LoadAccessoryIds(assignment))
+                    .Select(id => new Invent.AssignmentAccessory { AccessoryId = id })
+                    .ToList()
             };
 
             _context.InventoryAssignments.Add(dbAssignment);
@@ -50,7 +53,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task Delete(long id)
         {
-            Invent.Assignment? dbAssignment = await _context.InventoryAssignments.Include(x => x.Accessories).FirstOrDefaultAsync(x => x.Id == id);
+            Invent.Assignment? dbAssignment = await _context.InventoryAssignments.FirstOrDefaultAsync(x => x.Id == id);
 
             if (dbAssignment == null)
                 return;
@@ -92,7 +95,9 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task Update(Assignment assignment)
         {
-            Invent.Assignment? dbAssignment = await _context.InventoryAssignments.Include(x => x.Accessories).FirstOrDefaultAsync(x => x.Id == assignment.Id);
+            Invent.Assignment? dbAssignment = await _context.InventoryAssignments
+                .Include(x => x.AssignmentAccessories)
+                .FirstOrDefaultAsync(x => x.Id == assignment.Id);
 
             if (dbAssignment == null)
                 return;
@@ -102,7 +107,13 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             dbAssignment.AssignmentDate = assignment.AssignmentDate;
             dbAssignment.ReturnDate = assignment.ReturnDate;
             dbAssignment.Remarks = assignment.Remarks;
-            dbAssignment.Accessories = await LoadAccessories(assignment);
+
+            var accessoryIds = await LoadAccessoryIds(assignment);
+            dbAssignment.AssignmentAccessories.RemoveAll(x => !accessoryIds.Contains(x.AccessoryId));
+            foreach (var accessoryId in accessoryIds.Where(id => !dbAssignment.AssignmentAccessories.Any(x => x.AccessoryId == id)))
+            {
+                dbAssignment.AssignmentAccessories.Add(new Invent.AssignmentAccessory { AccessoryId = accessoryId });
+            }
 
             await _context.SaveChangesAsync();
         }
@@ -110,7 +121,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)
         {
             var dbAssignments = await AssignmentsWithDetails()
-                .Where(a => a.Accessories.Any(ac => ac.Id == accessoryId))
+                .Where(a => a.AssignmentAccessories.Any(ac => ac.AccessoryId == accessoryId))
                 .ToListAsync();
             return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
         }

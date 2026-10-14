@@ -13,6 +13,11 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
             return Domain.Department.Reconstitute(department.Id, department.Name);
         }
 
+        public static Domain.Location? ToDomainModel(this Invent.Location location)
+        {
+            return Domain.Location.Reconstitute(location.Id, location.Name);
+        }
+
         public static Domain.Accessory? ToDomainModel(this Invent.Accessory accessory)
         {
             return Domain.Accessory.Reconstitute(accessory.Id, accessory.Name, accessory.Quantity, accessory.Date);
@@ -27,14 +32,18 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 device.Specs,
                 device.PurchasedDate,
                 device.RetirementDate,
-                (double)device.Price,
-                (double)device.SoldPrice,
+                device.Price,
+                device.SoldPrice ?? 0m,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)device.OperatingSystem);
         }
 
         public static Domain.User? ToDomainModel(this Invent.User user)
         {
-            return Domain.User.Reconstitute(user.Id, user.Name, user.Department?.ToDomainModel());
+            return Domain.User.Reconstitute(
+                user.Id,
+                user.Name,
+                user.Department?.ToDomainModel(),
+                user.Location?.ToDomainModel());
         }
 
         public static Domain.Assignment? ToDomainModel(this Invent.Assignment assignment)
@@ -45,7 +54,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 assignment.AssignedUser?.ToDomainModel(),
                 assignment.AssignmentDate,
                 assignment.ReturnDate,
-                assignment.Accessories.ToDomainModelList(a => a.ToDomainModel()),
+                assignment.AssignmentAccessories.ToDomainModelList(a => a.Accessory?.ToDomainModel()),
                 assignment.Remarks);
         }
 
@@ -70,8 +79,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 Specs = device.Specs,
                 PurchasedDate = device.PurchasedDate,
                 RetirementDate = device.RetirementDate,
-                Price = (double)device.Price,
-                SoldPrice = (double)device.SoldPrice,
+                Price = device.Price,
+                SoldPrice = device.SoldPrice,
                 OperatingSystem = (byte)device.OperatingSystem
             };
         }
@@ -82,7 +91,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
             {
                 Id = user.Id,
                 Name = user.Name,
-                DepartmentId = user.Department.Id
+                DepartmentId = user.Department.Id,
+                LocationId = user.Location?.Id
             };
         }
 

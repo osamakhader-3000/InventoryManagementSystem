@@ -17,11 +17,18 @@ namespace InventoryManagementSystemDataAccess.Persistence
         internal virtual DbSet<Inventory.Department> InventoryDepartments { get; set; }
 
         internal virtual DbSet<Inventory.User> InventoryUsers { get; set; }
+
+        internal virtual DbSet<Inventory.Location> InventoryLocations { get; set; }
+
         internal virtual DbSet<Inventory.Accessory> InventoryAccessories { get; set; }
 
         internal virtual DbSet<Inventory.Device> InventoryDevices { get; set; }
 
         internal virtual DbSet<Inventory.Assignment> InventoryAssignments { get; set; }
+
+        internal virtual DbSet<Inventory.TrialLog> InventoryTrialLogs { get; set; }
+
+        internal virtual DbSet<Inventory.AssignmentAccessory> InventoryAssignmentAccessories { get; set; }
 
 
         //internal virtual DbSet<SecurityApplicationDataAccess.Models.AccessToken> AccessTokens { get; set; }
@@ -46,9 +53,85 @@ namespace InventoryManagementSystemDataAccess.Persistence
 
             modelBuilder.Entity<Inventory.Department>().ToTable("inventory_departments");
             modelBuilder.Entity<Inventory.User>().ToTable("inventory_users");
+            modelBuilder.Entity<Inventory.Location>().ToTable("inventory_locations");
             modelBuilder.Entity<Inventory.Accessory>().ToTable("inventory_accessories");
             modelBuilder.Entity<Inventory.Device>().ToTable("inventory_devices");
             modelBuilder.Entity<Inventory.Assignment>().ToTable("inventory_assignments");
+            modelBuilder.Entity<Inventory.TrialLog>().ToTable("inventory_trial_logs");
+            modelBuilder.Entity<Inventory.AssignmentAccessory>().ToTable("inventory_assignment_accessories");
+
+            modelBuilder.Entity<Inventory.Device>(b =>
+            {
+                b.Property(e => e.Price).HasPrecision(12, 2);
+                b.Property(e => e.SoldPrice).HasPrecision(12, 2);
+
+                b.HasIndex(e => e.SerialNumber).IsUnique();
+            });
+
+            // Many-to-one: a user has one department, a department has many users
+            modelBuilder.Entity<Inventory.User>(b =>
+            {
+                b.HasOne(e => e.Department)
+                    .WithMany(e => e.Users)
+                    .HasForeignKey(e => e.DepartmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Optional: a user may have no location
+                b.HasOne(e => e.Location)
+                    .WithMany(e => e.Users)
+                    .HasForeignKey(e => e.LocationId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Many-to-one: an assignment has one user and one device
+            modelBuilder.Entity<Inventory.Assignment>(b =>
+            {
+                b.HasOne(e => e.AssignedUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.AssignedUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(e => e.Device)
+                    .WithMany()
+                    .HasForeignKey(e => e.DeviceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Many-to-one: a trial log has one user, one device and one agent (security user)
+            modelBuilder.Entity<Inventory.TrialLog>(b =>
+            {
+                b.HasOne(e => e.User)
+                    .WithMany(e => e.TrialLogs)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(e => e.Device)
+                    .WithMany(e => e.TrialLogs)
+                    .HasForeignKey(e => e.DeviceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(e => e.Agent)
+                    .WithMany()
+                    .HasForeignKey(e => e.AgentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Many-to-many: an assignment has many accessories, an accessory belongs to many assignments
+            modelBuilder.Entity<Inventory.AssignmentAccessory>(b =>
+            {
+                b.HasKey(e => new { e.AssignmentId, e.AccessoryId });
+
+                b.HasOne(e => e.Assignment)
+                    .WithMany(e => e.AssignmentAccessories)
+                    .HasForeignKey(e => e.AssignmentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(e => e.Accessory)
+                    .WithMany(e => e.AssignmentAccessories)
+                    .HasForeignKey(e => e.AccessoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
 
 

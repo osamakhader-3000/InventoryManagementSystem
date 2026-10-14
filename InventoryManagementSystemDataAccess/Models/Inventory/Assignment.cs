@@ -15,13 +15,13 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
         public Guid AssignedUserId { get; set; }
         public User AssignedUser { get; set; } = null!;
 
-        public DateTime? AssignmentDate { get; set; }
+        public DateTime AssignmentDate { get; set; }
 
         public DateTime? ReturnDate { get; set; }
 
-        public List<Accessory> Accessories { get; set; } = new List<Accessory>();
+        public List<AssignmentAccessory> AssignmentAccessories { get; set; } = new List<AssignmentAccessory>();
 
-        public string Remarks { get; set; } = string.Empty;
+        public string? Remarks { get; set; }
 
     }
 }

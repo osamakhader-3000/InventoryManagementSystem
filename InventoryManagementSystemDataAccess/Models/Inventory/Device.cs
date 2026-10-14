@@ -19,9 +19,11 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public DateTime? RetirementDate { get; set; }
 
-        public double Price { get; set; }
+        public decimal Price { get; set; }
 
-        public double SoldPrice { get; set; }
+        public decimal? SoldPrice { get; set; }
+
+        public List<TrialLog> TrialLogs { get; set; } = new List<TrialLog>();
 
     }
 }

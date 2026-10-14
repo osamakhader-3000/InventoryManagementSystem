@@ -8,8 +8,8 @@
         public string Specs { get; set; } = string.Empty;
         public DateTime? PurchasedDate { get; set; }
         public DateTime? RetirementDate { get; set; }
-        public double Price { get; set; } = 0d;
-        public double SoldPrice { get; set; } = 0d;
+        public decimal Price { get; set; } = 0m;
+        public decimal SoldPrice { get; set; } = 0m;
         public byte OperatingSystem { get; set; } = 0;
     }
 }

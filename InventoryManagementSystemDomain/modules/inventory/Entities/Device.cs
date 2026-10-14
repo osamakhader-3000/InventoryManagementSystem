@@ -15,8 +15,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public DateTime? PurchasedDate { get; private set; }
         public DateTime? RetirementDate { get; private set; }
-        public double Price { get; private set; }
-        public double SoldPrice { get; private set; }
+        public decimal Price { get; private set; }
+        public decimal SoldPrice { get; private set; }
         public Enums.OperatingSystem OperatingSystem { get; private set; } = Enums.OperatingSystem.Other;
 
         private Device(Guid id)
@@ -30,8 +30,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             string specs,
             DateTime? purchasedDate,
             DateTime? retirementDate,
-            double price,
-            double soldPrice,
+            decimal price,
+            decimal soldPrice,
             Enums.OperatingSystem operatingSystem)
         {
             return new Device(Guid.NewGuid())
@@ -54,8 +54,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             string specs,
             DateTime? purchasedDate,
             DateTime? retirementDate,
-            double price,
-            double soldPrice,
+            decimal price,
+            decimal soldPrice,
             Enums.OperatingSystem operatingSystem)
         {
             if (id == Guid.Empty || string.IsNullOrWhiteSpace(model))

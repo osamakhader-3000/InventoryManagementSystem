@@ -17,6 +17,13 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             _context = context;
         }
 
+        private IQueryable<Invent.User> UsersWithDepartment()
+        {
+            return _context.InventoryUsers
+                .Include(x => x.Department)
+                .Include(x => x.Location);
+        }
+
         public Task Create(User user)
         {
             _context.InventoryUsers.Add(user.ToDataAccessModel());
@@ -31,7 +38,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<User?> GetById(Guid id)
         {
-            Invent.User? dbUser = await _context.InventoryUsers.Include(x => x.Department).FirstOrDefaultAsync(x => x.Id == id);
+            Invent.User? dbUser = await UsersWithDepartment().FirstOrDefaultAsync(x => x.Id == id);
 
             if (dbUser == null)
                 return null;
@@ -41,14 +48,22 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<List<User>> ListAll()
         {
-            var dbUsers = await _context.InventoryUsers.Include(x => x.Department).ToListAsync();
+            var dbUsers = await UsersWithDepartment().ToListAsync();
             return dbUsers.ToDomainModelList(x => x.ToDomainModel());
         }
 
-        public Task Update(User user)
+        public async Task Update(User user)
         {
-            _context.InventoryUsers.Update(user.ToDataAccessModel());
-            return _context.SaveChangesAsync();
+            Invent.User? dbUser = await _context.InventoryUsers.FirstOrDefaultAsync(x => x.Id == user.Id);
+
+            if (dbUser == null)
+                return;
+
+            dbUser.Name = user.Name;
+            dbUser.DepartmentId = user.Department.Id;
+            dbUser.LocationId = user.Location?.Id;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

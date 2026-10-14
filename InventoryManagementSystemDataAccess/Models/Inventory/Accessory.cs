@@ -11,5 +11,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
         public int Quantity { get; set; }
 
         public DateTime Date { get; set; }
+
+        public List<AssignmentAccessory> AssignmentAccessories { get; set; } = new List<AssignmentAccessory>();
     }
 }
