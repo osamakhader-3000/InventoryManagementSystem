@@ -19,7 +19,7 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _locationRepository.Create(location);
             return location.Id;
         }
-        public async Task<List<Location>> List(string name)
+        public async Task<List<Location>> List(string? name)
         {
             return await _locationRepository.ListAll(name);
         }

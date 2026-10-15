@@ -45,7 +45,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbLocation.ToDomainModel();
         }
 
-        public async Task<List<Location>> ListAll(string name)
+        public async Task<List<Location>> ListAll(string? name)
         {
             var dbLocations = await _context.InventoryLocations
                 .Where(l => string.IsNullOrEmpty(name) || l.Name.Contains(name))

@@ -17,7 +17,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             locationGroup.MapDelete("/delete/{id}", DeleteLocation).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListLocations([FromServices] ILocationService locationService,string name)
+        private static async Task<IResult> ListLocations([FromServices] ILocationService locationService,string? name)
         {
             var locations = await locationService.List(name);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.LocationMapper.ToDtoList(locations));

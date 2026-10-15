@@ -9,7 +9,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     {
         Task Create(Location location);
         Task<Location?> GetById(Guid id);
-        Task<List<Location>> ListAll(string name);
+        Task<List<Location>> ListAll(string? name);
         Task Update(Location location);
         Task Delete(Guid id);
     }

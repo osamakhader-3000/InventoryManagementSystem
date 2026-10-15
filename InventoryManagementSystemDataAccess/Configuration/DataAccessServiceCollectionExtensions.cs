@@ -42,6 +42,7 @@ namespace InventoryManagementSystemDataAccess.Configuration
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<ITokensRepository, TokensRepository>();
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            services.AddScoped<ILocationRepository, LocationRepository>();
             services.AddScoped<IAccessoryRepository, AccessoryRepository>();
             services.AddScoped<IDeviceRepository, DeviceRepository>();
             services.AddScoped<IUserRepository, UserRepository>();

@@ -15,6 +15,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             deviceGroup.MapPost("/create", CreateDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             deviceGroup.MapPut("/update", UpdateDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             deviceGroup.MapDelete("/delete/{id}", DeleteDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            deviceGroup.MapPut("/sell/", SellDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
         private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService)
@@ -70,5 +71,31 @@ namespace InventoryManagementSystem.Inventory.APIs
             await deviceService.Delete(id);
             return Results.Ok();
         }
+
+        private static async Task<IResult> SellDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
+        {
+            var existingDevice = await deviceService.Get(dtoDevice.Id);
+
+            if(existingDevice == null)
+            {
+                return Results.NotFound();
+            }
+
+            DomainEntities.Device? device = DomainEntities.Device.Reconstitute(
+                existingDevice.Id,
+                existingDevice.Model,
+                existingDevice.SerialNumber,
+                existingDevice.Specs,
+                existingDevice.PurchasedDate,
+                existingDevice.RetirementDate,
+                existingDevice.Price,
+                dtoDevice.SoldPrice,
+                existingDevice.OperatingSystem);
+            if (device == null)
+                return Results.BadRequest();
+            await deviceService.Update(device);
+            return Results.Ok();
+        }
+
     }
 }

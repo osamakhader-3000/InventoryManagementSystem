@@ -14,7 +14,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             assignmentGroup.MapGet("/Get/{id}", GetAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapPost("/create", CreateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapPut("/update", UpdateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
-            assignmentGroup.MapDelete("/delete/{id}", DeleteAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            assignmentGroup.MapPut("/relocate", RelocateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
         private static async Task<IResult> ListAssignments(
@@ -127,11 +127,36 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteAssignment([FromServices] IAssignmentService assignmentService, long id)
+        private static async Task<IResult> RelocateAssignment(
+            [FromServices] IAssignmentService assignmentService,
+            [FromServices] IUserService userService,
+            [FromBody] Dto.Assignment dtoAssignment)
         {
-            await assignmentService.Delete(id);
+            if (dtoAssignment.AssignedUser == null)
+                return Results.BadRequest("Assigned user is required");
+
+            var assignedUser = await userService.Get(dtoAssignment.AssignedUser.Id);
+            if (assignedUser == null)
+                return Results.BadRequest("User not found");
+
+            var existingAssignment = await assignmentService.Get(dtoAssignment.Id);
+            if (existingAssignment == null)
+                return Results.NotFound();
+
+            DomainEntities.Assignment assignment = DomainEntities.Assignment.Reconstitute(
+                dtoAssignment.Id,
+                existingAssignment.Device,
+                assignedUser,
+                existingAssignment.AssignmentDate,
+                null,
+                existingAssignment.Accessories,
+                dtoAssignment.Remarks);
+                      
+            await assignmentService.Update(assignment);
             return Results.Ok();
         }
+
+
              
     }
 }
