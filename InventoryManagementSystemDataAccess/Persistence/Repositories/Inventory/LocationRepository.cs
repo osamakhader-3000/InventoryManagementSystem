@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
+using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
@@ -47,16 +48,9 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<List<Location>> ListAll(string? name)
         {
-            var query = _context.InventoryLocations.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                // Escape LIKE wildcards so user input like "50%" or "a_b" is matched literally
-                var escaped = name.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
-                query = query.Where(l => EF.Functions.ILike(l.Name, $"%{escaped}%"));
-            }
-
-            var dbLocations = await query.ToListAsync();
+            var dbLocations = await _context.InventoryLocations
+                .WhereContainsIgnoreCase(l => l.Name, name)
+                .ToListAsync();
             return dbLocations.ToDomainModelList(x => x.ToDomainModel());
         }
 
