@@ -47,9 +47,16 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<List<Location>> ListAll(string? name)
         {
-            var dbLocations = await _context.InventoryLocations
-                .Where(l => string.IsNullOrEmpty(name) || l.Name.Contains(name))
-                .ToListAsync();
+            var query = _context.InventoryLocations.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                // Escape LIKE wildcards so user input like "50%" or "a_b" is matched literally
+                var escaped = name.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+                query = query.Where(l => EF.Functions.ILike(l.Name, $"%{escaped}%"));
+            }
+
+            var dbLocations = await query.ToListAsync();
             return dbLocations.ToDomainModelList(x => x.ToDomainModel());
         }
 
