@@ -9,11 +9,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
             return new Dto.Assignment
             {
                 Id = assignment.Id ?? 0,
-                Device.Id = assignment.Device.Id,
-                AssignedUser.Id = assignment.AssignedUser.Id,
                 AssignmentDate = assignment.AssignmentDate,
                 ReturnDate = assignment.ReturnDate,
-                AccessoryIds = assignment.Accessories.Select(x => x.Id).ToList(),
                 Remarks = assignment.Remarks,
                 Device = DeviceMapper.ToDto(assignment.Device),
                 AssignedUser = UserMapper.ToDto(assignment.AssignedUser),
