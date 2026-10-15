@@ -12,7 +12,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public User AssignedUser { get; private set; }
 
-        public DateTime? AssignmentDate { get; private set; }
+        public DateTime AssignmentDate { get; private set; }
 
         public DateTime? ReturnDate { get; private set; }
 
@@ -32,7 +32,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
         public static Assignment Create(
             Device device,
             User assignedUser,
-            DateTime? assignmentDate,
+            DateTime assignmentDate,
             DateTime? returnDate,
             IEnumerable<Accessory> accessories,
             string remarks)
@@ -48,18 +48,15 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             return assignment;
         }
 
-        public static Assignment? Reconstitute(
+        public static Assignment Reconstitute(
             long id,
-            Device? device,
-            User? assignedUser,
-            DateTime? assignmentDate,
+            Device device,
+            User assignedUser,
+            DateTime assignmentDate,
             DateTime? returnDate,
             IEnumerable<Accessory> accessories,
             string remarks)
-        {
-            if (id <= 0 || device == null || assignedUser == null)
-                return null;
-
+        {           
             var assignment = new Assignment(id, device, assignedUser)
             {
                 AssignmentDate = assignmentDate,

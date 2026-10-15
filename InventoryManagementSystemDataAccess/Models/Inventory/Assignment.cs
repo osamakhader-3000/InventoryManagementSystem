@@ -21,7 +21,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public List<AssignmentAccessory> AssignmentAccessories { get; set; } = new List<AssignmentAccessory>();
 
-        public string? Remarks { get; set; }
+        public string Remarks { get; set; } = string.Empty;
 
     }
 }

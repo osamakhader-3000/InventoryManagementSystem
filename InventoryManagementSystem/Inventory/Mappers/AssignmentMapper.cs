@@ -9,8 +9,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
             return new Dto.Assignment
             {
                 Id = assignment.Id ?? 0,
-                DeviceId = assignment.Device.Id,
-                AssignedUserId = assignment.AssignedUser.Id,
+                Device.Id = assignment.Device.Id,
+                AssignedUser.Id = assignment.AssignedUser.Id,
                 AssignmentDate = assignment.AssignmentDate,
                 ReturnDate = assignment.ReturnDate,
                 AccessoryIds = assignment.Accessories.Select(x => x.Id).ToList(),

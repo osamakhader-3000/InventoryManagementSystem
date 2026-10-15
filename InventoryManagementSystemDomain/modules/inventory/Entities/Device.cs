@@ -47,7 +47,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             };
         }
 
-        public static Device? Reconstitute(
+        public static Device Reconstitute(
             Guid id,
             string model,
             string serialNumber,
@@ -57,9 +57,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             decimal price,
             decimal soldPrice,
             Enums.OperatingSystem operatingSystem)
-        {
-            if (id == Guid.Empty || string.IsNullOrWhiteSpace(model))
-                return null;
+        {            
             return new Device(id)
             {
                 Model = model,

@@ -185,6 +185,7 @@ UsersApplicationPresentation.APIs.Authentication.Map(app, securityGroup, builder
 var inventoryGroup = apiGroup.MapGroup("/inventory");
 
 InventoryManagementSystem.Inventory.APIs.Department.Map(app, inventoryGroup);
+InventoryManagementSystem.Inventory.APIs.Location.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.Accessory.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.Device.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.User.Map(app, inventoryGroup);

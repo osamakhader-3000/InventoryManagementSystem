@@ -3,10 +3,10 @@
     public class Assignment
     {
         public long Id { get; set; }
-        public DateTime? AssignmentDate { get; set; }
+        public DateTime AssignmentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
         public string Remarks { get; set; } = string.Empty;
-        public Device? Device { get; set; }
+        public Device Device { get; set; } = new Device();
 
         public bool Headset { get; set; } = false;
 
