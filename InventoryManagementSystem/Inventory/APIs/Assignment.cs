@@ -106,11 +106,16 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (missingAccessoryIds.Any())
                 return Results.BadRequest($"Accessories not found: {string.Join(", ", missingAccessoryIds)}");
 
+            var existingAssignment = await assignmentService.Get(dtoAssignment.Id);
+
+            if (existingAssignment == null)
+                return Results.NotFound();
+
             DomainEntities.Assignment? assignment = DomainEntities.Assignment.Reconstitute(
                 dtoAssignment.Id,
                 device,
                 assignedUser,
-                null,
+                existingAssignment.AssignmentDate,
                 null,
                 accessories,
                 dtoAssignment.Remarks);
