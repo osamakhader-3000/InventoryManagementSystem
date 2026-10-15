@@ -12,8 +12,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
             return Domain.User.Reconstitute(
                 user.Id,
                 user.Name,
-                user.Department?.ToDomainModel(),
-                user.Location?.ToDomainModel());
+                user.Department.ToDomainModel(),
+                user.Location.ToDomainModel());
         }
 
         public static Invent.User ToDataAccessModel(this Domain.User user)
@@ -23,7 +23,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 Id = user.Id,
                 Name = user.Name,
                 DepartmentId = user.Department.Id,
-                LocationId = user.Location?.Id
+                LocationId = user.Location.Id
             };
         }
     }

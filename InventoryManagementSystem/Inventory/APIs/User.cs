@@ -31,29 +31,37 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.UserMapper.ToDto(user));
         }
 
-        private static async Task<IResult> CreateUser([FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromBody] Dto.User dtoUser)
+        private static async Task<IResult> CreateUser([FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromServices] ILocationService locationService, [FromBody] Dto.User dtoUser)
         {
             var department = await departmentService.Get(dtoUser.Department.Id);
             if (department == null)
                 return Results.BadRequest("Department not found");
 
-            DomainEntities.User user = DomainEntities.User.Create(dtoUser.Name, department);
+            var location = await locationService.Get(dtoUser.Location.Id);
+            if (location == null)
+                return Results.BadRequest("Location not found");
+
+            DomainEntities.User user = DomainEntities.User.Create(dtoUser.Name, department, location);
 
             var createdUserId = await userService.Create(user);
             return Results.Created($"/user/Get/{createdUserId}", new { Id = createdUserId });
         }
 
-        private static async Task<IResult> UpdateUser([FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromBody] Dto.User dtoUser)
+        private static async Task<IResult> UpdateUser([FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromServices] ILocationService locationService, [FromBody] Dto.User dtoUser)
         {
             var department = await departmentService.Get(dtoUser.Department.Id);
             if (department == null)
                 return Results.BadRequest("Department not found");
 
-            DomainEntities.User? user = DomainEntities.User.Reconstitute(dtoUser.Id, dtoUser.Name, department);
+            var location = await locationService.Get(dtoUser.Location.Id);
+            if (location == null)
+                return Results.BadRequest("Location not found");
+
+            DomainEntities.User? user = DomainEntities.User.Reconstitute(dtoUser.Id, dtoUser.Name, department, location);
             if (user == null)
                 return Results.BadRequest();
             await userService.Update(user);
-            return Results.NoContent();
+            return Results.Ok();
         }
 
         private static async Task<IResult> DeleteUser([FromServices] IUserService userService, Guid id)

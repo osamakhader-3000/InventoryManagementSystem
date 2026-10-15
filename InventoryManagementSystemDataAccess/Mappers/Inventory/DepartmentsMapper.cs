@@ -7,7 +7,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
 {
     internal static class DepartmentsMapper
     {
-        public static Domain.Department? ToDomainModel(this Invent.Department department)
+        public static Domain.Department ToDomainModel(this Invent.Department department)
         {
             return Domain.Department.Reconstitute(department.Id, department.Name);
         }

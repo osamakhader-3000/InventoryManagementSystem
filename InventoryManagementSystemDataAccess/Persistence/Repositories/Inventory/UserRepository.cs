@@ -61,7 +61,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
             dbUser.Name = user.Name;
             dbUser.DepartmentId = user.Department.Id;
-            dbUser.LocationId = user.Location?.Id;
+            dbUser.LocationId = user.Location.Id;
 
             await _context.SaveChangesAsync();
         }

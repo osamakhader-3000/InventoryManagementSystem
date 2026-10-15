@@ -22,10 +22,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             };
         }
 
-        public static Location? Reconstitute(Guid id, string name)
+        public static Location Reconstitute(Guid id, string name)
         {
-            if (id == Guid.Empty || string.IsNullOrWhiteSpace(name))
-                return null;
             return new Location(id)
             {
                 Name = name

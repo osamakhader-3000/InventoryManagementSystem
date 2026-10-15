@@ -41,7 +41,7 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.RetirementDate,
                 dtoDevice.Price,
                 dtoDevice.SoldPrice,
-                dtoDevice.OperatingSystem);
+                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)dtoDevice.OperatingSystem);
 
             var createdDeviceId = await deviceService.Create(device);
             return Results.Created($"/device/Get/{createdDeviceId}", new { Id = createdDeviceId });
@@ -58,7 +58,7 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.RetirementDate,
                 dtoDevice.Price,
                 dtoDevice.SoldPrice,
-                dtoDevice.OperatingSystem);
+                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)dtoDevice.OperatingSystem);
             if (device == null)
                 return Results.BadRequest();
             await deviceService.Update(device);

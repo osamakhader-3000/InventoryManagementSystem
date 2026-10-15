@@ -7,7 +7,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
 {
     internal static class LocationsMapper
     {
-        public static Domain.Location? ToDomainModel(this Invent.Location location)
+        public static Domain.Location ToDomainModel(this Invent.Location location)
         {
             return Domain.Location.Reconstitute(location.Id, location.Name);
         }

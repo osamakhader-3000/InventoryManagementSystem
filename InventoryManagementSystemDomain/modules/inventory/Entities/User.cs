@@ -11,7 +11,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public Department Department { get; private set; }
 
-        public Location? Location { get; private set; }
+        public Location Location { get; private set; }
 
         private User(Guid id, Department department, Location location)
         {

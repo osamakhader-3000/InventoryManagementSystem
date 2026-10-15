@@ -22,10 +22,9 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             };
         }
 
-        public static Department? Reconstitute(Guid id, string name)
+        public static Department Reconstitute(Guid id, string name)
         {
-            if (id == Guid.Empty || string.IsNullOrWhiteSpace(name))
-                return null;
+
             return new Department(id)
             {
                 Name = name

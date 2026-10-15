@@ -12,8 +12,8 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
         public Guid DepartmentId { get; set; }
         public Department Department { get; set; } = null!;
 
-        public Guid? LocationId { get; set; }
-        public Location? Location { get; set; }
+        public Guid LocationId { get; set; }
+        public Location Location { get; set; } = null!;
 
         public List<TrialLog> TrialLogs { get; set; } = new List<TrialLog>();
     }
