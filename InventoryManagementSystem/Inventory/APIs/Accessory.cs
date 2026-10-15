@@ -54,7 +54,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             }
 
             await accessoryService.Update(accessory);
-            return Results.NoContent();
+            return Results.Ok();
         }
 
         private static async Task<IResult> DeleteAccessory([FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, Guid id)
@@ -67,7 +67,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             }
 
             await accessoryService.Delete(id);
-            return Results.NoContent();
+            return Results.Ok();
         }
     }
 }

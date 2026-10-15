@@ -43,13 +43,13 @@ namespace InventoryManagementSystem.Inventory.APIs
         {
             DomainEntities.Department department = DomainEntities.Department.Create(dtoDepartment.Name);
             await departmentService.Update(department);     
-            return Results.NoContent();
+            return Results.Ok();
         }
 
         private static async Task<IResult> DeleteDepartment([FromServices] IDepartmentService departmentService, Guid id)
         {
             await departmentService.Delete(id);
-            return Results.NoContent();
+            return Results.Ok();
         }
     }
 }

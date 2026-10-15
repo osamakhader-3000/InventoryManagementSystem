@@ -62,13 +62,13 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (device == null)
                 return Results.BadRequest();
             await deviceService.Update(device);
-            return Results.NoContent();
+            return Results.Ok();
         }
 
         private static async Task<IResult> DeleteDevice([FromServices] IDeviceService deviceService, Guid id)
         {
             await deviceService.Delete(id);
-            return Results.NoContent();
+            return Results.Ok();
         }
     }
 }

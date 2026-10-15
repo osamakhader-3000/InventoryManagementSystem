@@ -119,13 +119,13 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.BadRequest();
 
             await assignmentService.Update(assignment);
-            return Results.NoContent();
+            return Results.Ok();
         }
 
         private static async Task<IResult> DeleteAssignment([FromServices] IAssignmentService assignmentService, long id)
         {
             await assignmentService.Delete(id);
-            return Results.NoContent();
+            return Results.Ok();
         }
              
     }
