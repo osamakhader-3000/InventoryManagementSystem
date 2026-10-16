@@ -44,19 +44,19 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<List<Domain.OperatingSystem>> ListAll()
         {
-            var dbOperatingSystems = await _context.InventoryOperatingSystems.ToListAsync();
+            var dbOperatingSystems = await _context.InventoryOperatingSystems.AsNoTracking().ToListAsync();
             return dbOperatingSystems.ToDomainModelList(x => x.ToDomainModel());
         }
 
-        public Task Update(Domain.OperatingSystem operatingSystem)
+        public async Task Update(Domain.OperatingSystem operatingSystem)
         {
-            var dbOperatingSystem = new Invent.OperatingSystem
-            {
-                Id = operatingSystem.Id,
-                Name = operatingSystem.Name
-            };
-            _context.InventoryOperatingSystems.Update(dbOperatingSystem);
-            return _context.SaveChangesAsync();
+            Invent.OperatingSystem? dbOperatingSystem = await _context.InventoryOperatingSystems.FindAsync(operatingSystem.Id);
+
+            if (dbOperatingSystem == null)
+                return;
+
+            dbOperatingSystem.Name = operatingSystem.Name;
+            await _context.SaveChangesAsync();
         }
     }
 }

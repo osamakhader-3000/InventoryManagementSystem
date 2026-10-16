@@ -65,6 +65,15 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (operatingSystem == null)
                 return Results.BadRequest("Operating system not found");
 
+            DomainEntities.Device? existingDevice = await deviceService.GetBySerialNumber(dtoDevice.SerialNumber);
+
+            
+            if(existingDevice != null && existingDevice.Id != dtoDevice.Id)
+            {
+                return Results.Conflict(new { Message = "A device with the same serial number already exists." });
+            }
+
+
             DomainEntities.Device? device = DomainEntities.Device.Reconstitute(
                 dtoDevice.Id,
                 dtoDevice.Model,
