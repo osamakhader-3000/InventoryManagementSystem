@@ -19,9 +19,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _userRepository.Create(user);
             return user.Id;
         }
-        public async Task<List<User>> List()
+        public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId)
         {
-            return await _userRepository.ListAll();
+            return await _userRepository.List(name, departmentId, locationId);
         }
         public async Task<User?> Get(Guid userId)
         {

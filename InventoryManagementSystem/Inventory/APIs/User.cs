@@ -17,9 +17,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             userGroup.MapDelete("/delete/{id}", DeleteUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListUsers([FromServices] IUserService userService)
+        private static async Task<IResult> ListUsers([FromServices] IUserService userService,string? name,Guid? dptId,Guid? locId)
         {
-            var users = await userService.List();
+            var users = await userService.List(name, dptId, locId);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.UserMapper.ToDtoList(users));
         }
 

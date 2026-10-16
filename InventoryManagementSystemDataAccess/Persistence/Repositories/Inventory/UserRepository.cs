@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
+using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
@@ -46,9 +47,26 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbUser.ToDomainModel();
         }
 
-        public async Task<List<User>> ListAll()
+        public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId)
         {
-            var dbUsers = await UsersWithDepartment().ToListAsync();
+            var query = UsersWithDepartment();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.WhereContainsIgnoreCase(x => x.Name, name);
+            }
+
+            if (departmentId.HasValue)
+            {
+                query = query.Where(x => x.DepartmentId == departmentId.Value);
+            }
+
+            if (locationId.HasValue)
+            {
+                query = query.Where(x => x.LocationId == locationId.Value);
+            }
+
+            var dbUsers = await query.ToListAsync();
             return dbUsers.ToDomainModelList(x => x.ToDomainModel());
         }
 
