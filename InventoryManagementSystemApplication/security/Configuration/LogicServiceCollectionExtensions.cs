@@ -20,6 +20,7 @@ namespace SecurityApplicationCore.Configuration
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IDeviceService, InventoryManagementSystemApplication.inventory.Services.DeviceService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IUserService, InventoryManagementSystemApplication.inventory.Services.UserService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IAssignmentService, InventoryManagementSystemApplication.inventory.Services.AssignmentService>();
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IOperatingSystemService, InventoryManagementSystemApplication.inventory.Services.OperatingSystemService>();
 
 
             return services;

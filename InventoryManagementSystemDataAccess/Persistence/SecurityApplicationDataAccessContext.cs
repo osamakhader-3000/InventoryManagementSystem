@@ -30,6 +30,8 @@ namespace InventoryManagementSystemDataAccess.Persistence
 
         internal virtual DbSet<Inventory.AssignmentAccessory> InventoryAssignmentAccessories { get; set; }
 
+        internal virtual DbSet<Inventory.OperatingSystem> InventoryOperatingSystems { get; set; }
+
 
         //internal virtual DbSet<SecurityApplicationDataAccess.Models.AccessToken> AccessTokens { get; set; }
 
@@ -59,6 +61,7 @@ namespace InventoryManagementSystemDataAccess.Persistence
             modelBuilder.Entity<Inventory.Assignment>().ToTable("inventory_assignments");
             modelBuilder.Entity<Inventory.TrialLog>().ToTable("inventory_trial_logs");
             modelBuilder.Entity<Inventory.AssignmentAccessory>().ToTable("inventory_assignment_accessories");
+            modelBuilder.Entity<Inventory.OperatingSystem>().ToTable("inventory_operating_systems");
 
             modelBuilder.Entity<Inventory.Device>(b =>
             {

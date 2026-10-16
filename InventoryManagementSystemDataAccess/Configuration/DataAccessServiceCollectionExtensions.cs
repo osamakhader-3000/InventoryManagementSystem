@@ -47,6 +47,7 @@ namespace InventoryManagementSystemDataAccess.Configuration
             services.AddScoped<IDeviceRepository, DeviceRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+            services.AddScoped<IOperatingSystemRepository, OperatingSystemRepository>();
             services.AddScoped<SecurityApplicationLogic.Interfaces.IRoleDataService, RoleDataService>();
 
             return services;
