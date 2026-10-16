@@ -10,7 +10,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
             {
                 Id = user.Id,
                 Name = user.Name,
-                Department = DepartmentMapper.ToDto(user.Department)
+                Department = DepartmentMapper.ToDto(user.Department),
+                Location = LocationMapper.ToDto(user.Location)
             };
         }
 
