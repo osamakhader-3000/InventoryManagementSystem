@@ -9,7 +9,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
     {
         public Task<Guid> Create(Accessory accessory);
 
-        public Task<List<Accessory>> List(string? name,bool? stock);
+        public Task<List<Accessory>> List(string? name,bool? stock, DateTime? date);
 
         public Task<Accessory?> Get(Guid accessoryId);
 

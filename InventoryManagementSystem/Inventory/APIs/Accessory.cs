@@ -18,9 +18,13 @@ namespace InventoryManagementSystem.Inventory.APIs
             accessoryGroup.MapDelete("/delete/{id}", DeleteAccessory).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListAccessories([FromServices] IAccessoryService accessoryService,string? name,int? stock)
+        private static async Task<IResult> ListAccessories([FromServices] IAccessoryService accessoryService, string? name, int? stock, DateTime? date)
         {
-            var accessories = await accessoryService.List(name,stock==0?false:true);
+            bool? isStock = null;
+            if (stock.HasValue)            
+                isStock = stock != 0;
+            
+            var accessories = await accessoryService.List(name, isStock, date);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.AccessoryMapper.ToDtoList(accessories));
         }
 
@@ -48,7 +52,7 @@ namespace InventoryManagementSystem.Inventory.APIs
 
             var assignmentsWithAccessory = await assignmentService.ListByAccessoryId(dtoAccessory.Id);
 
-            if(dtoAccessory.Quantity < assignmentsWithAccessory.Count())
+            if (dtoAccessory.Quantity < assignmentsWithAccessory.Count())
             {
                 return Results.BadRequest("Cannot update accessory because the new quantity is less than the quantity already assigned to assignments.");
             }
@@ -61,7 +65,7 @@ namespace InventoryManagementSystem.Inventory.APIs
         {
             var assignmentsWithAccessory = await assignmentService.ListByAccessoryId(id);
 
-            if(assignmentsWithAccessory.Any())
+            if (assignmentsWithAccessory.Any())
             {
                 return Results.BadRequest("Cannot delete accessory because it is assigned to one or more assignments.");
             }

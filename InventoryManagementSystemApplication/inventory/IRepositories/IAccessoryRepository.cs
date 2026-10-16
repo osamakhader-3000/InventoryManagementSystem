@@ -9,7 +9,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     {
         Task Create(Accessory accessory);
         Task<Accessory?> GetById(Guid id);
-        Task<List<Accessory>> List(string? name,bool? stock);
+        Task<List<Accessory>> List(string? name,bool? stock, DateTime? date);
         Task Update(Accessory accessory);
         Task Delete(Guid id);
         Task<IEnumerable<Accessory>> ListByIds(List<Guid> ids);

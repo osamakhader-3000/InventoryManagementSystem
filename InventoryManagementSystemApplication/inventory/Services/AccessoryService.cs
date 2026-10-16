@@ -19,9 +19,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _accessoryRepository.Create(accessory);
             return accessory.Id;
         }
-        public async Task<List<Accessory>> List(string? name,bool? stock)
+        public async Task<List<Accessory>> List(string? name,bool? stock, DateTime? date)
         {
-            return await _accessoryRepository.List(name,stock);
+            return await _accessoryRepository.List(name,stock,date);
         }
 
      

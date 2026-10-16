@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
+using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,29 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             if (stock.HasValue)
             {
                 query = query.Where(x => x.Quantity > 0 && stock == true || x.Quantity == 0 && stock == false || !stock.HasValue);
+            }
+
+            var dbAccessories = await query.ToListAsync();
+            return dbAccessories.ToDomainModelList(x => x.ToDomainModel());
+        }
+
+        public async Task<List<Accessory>> List(string? name,bool? stock, DateTime? date)
+        {
+            var query = _context.InventoryAccessories.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.WhereContainsIgnoreCase(x => x.Name, name);
+            }
+
+            if (stock.HasValue)
+            {
+                query = query.Where(x => x.Quantity > 0 && stock == true || x.Quantity == 0 && stock == false || !stock.HasValue);
+            }
+
+            if (date.HasValue)
+            {
+                query = query.Where(x => x.Date == date.Value.Date);
             }
 
             var dbAccessories = await query.ToListAsync();
