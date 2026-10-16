@@ -81,12 +81,18 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
             if (stock.HasValue)
             {
-                query = query.Where(x => x.Quantity > 0 && stock == true || x.Quantity == 0 && stock == false || !stock.HasValue);
+                // In stock means some quantity is still available (not assigned).
+                query = stock.Value
+                    ? query.Where(x => x.Quantity - x.AssignedQuantity > 0)
+                    : query.Where(x => x.Quantity - x.AssignedQuantity <= 0);
             }
 
             if (date.HasValue)
             {
-                query = query.Where(x => x.Date == date.Value.Date);
+                // Npgsql only accepts UTC DateTimes for timestamptz; match the whole day.
+                var dayStart = DateTime.SpecifyKind(date.Value.Date, DateTimeKind.Utc);
+                var dayEnd = dayStart.AddDays(1);
+                query = query.Where(x => x.Date >= dayStart && x.Date < dayEnd);
             }
 
             var dbAccessories = await query.ToListAsync();
