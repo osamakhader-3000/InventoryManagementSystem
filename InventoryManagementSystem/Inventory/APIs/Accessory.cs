@@ -25,20 +25,25 @@ namespace InventoryManagementSystem.Inventory.APIs
                 isStock = stock != 0;
             
             var accessories = await accessoryService.List(name, isStock, date);
+
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.AccessoryMapper.ToDtoList(accessories));
         }
 
-        private static async Task<IResult> GetAccessory([FromServices] IAccessoryService accessoryService, Guid id)
+        private static async Task<IResult> GetAccessory([FromServices] IAssignmentService assignmentService,[FromServices] IAccessoryService accessoryService, Guid id)
         {
             var accessory = await accessoryService.Get(id);
             if (accessory == null)
                 return Results.NotFound();
-            return Results.Ok(InventoryManagementSystem.Inventory.Mappers.AccessoryMapper.ToDto(accessory));
+
+            var dtoAccessory = InventoryManagementSystem.Inventory.Mappers.AccessoryMapper.ToDto(accessory);
+
+
+            return Results.Ok(dtoAccessory);
         }
 
         private static async Task<IResult> CreateAccessory([FromServices] IAccessoryService accessoryService, [FromBody] Dto.Accessory dtoAccessory)
         {
-            DomainEntities.Accessory accessory = DomainEntities.Accessory.Create(dtoAccessory.Name, dtoAccessory.Quantity, dtoAccessory.Date);
+            DomainEntities.Accessory accessory = DomainEntities.Accessory.Create(dtoAccessory.Name, dtoAccessory.Quantity,0, dtoAccessory.Date);
 
             var createdAccessoryId = await accessoryService.Create(accessory);
             return Results.Created($"/accessory/Get/{createdAccessoryId}", new { Id = createdAccessoryId });
@@ -46,7 +51,14 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> UpdateAccessory([FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, [FromBody] Dto.Accessory dtoAccessory)
         {
-            DomainEntities.Accessory? accessory = DomainEntities.Accessory.Reconstitute(dtoAccessory.Id, dtoAccessory.Name, dtoAccessory.Quantity, dtoAccessory.Date);
+            DomainEntities.Accessory? existingAccessory = await accessoryService.Get(dtoAccessory.Id);
+            if (existingAccessory == null)
+                return Results.NotFound();
+
+            if(existingAccessory.AssignedQuantity > dtoAccessory.Quantity)            
+                return Results.BadRequest("Cannot update accessory because the new quantity is less than the quantity already assigned to assignments.");
+            
+            DomainEntities.Accessory? accessory = DomainEntities.Accessory.Reconstitute(dtoAccessory.Id, dtoAccessory.Name, dtoAccessory.Quantity, existingAccessory.AssignedQuantity, dtoAccessory.Date);
             if (accessory == null)
                 return Results.BadRequest();
 

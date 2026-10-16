@@ -93,10 +93,15 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAccessories.ToDomainModelList(x => x.ToDomainModel());
         }
 
-        public Task Update(Accessory accessory)
+        public async Task Update(Accessory accessory)
         {
-            _context.InventoryAccessories.Update(accessory.ToDataAccessModel());
-            return _context.SaveChangesAsync();
+            // FindAsync returns the already-tracked instance if one exists, avoiding duplicate tracking
+            Invent.Accessory? dbAccessory = await _context.InventoryAccessories.FindAsync(accessory.Id);
+            if (dbAccessory == null)
+                return;
+
+            _context.Entry(dbAccessory).CurrentValues.SetValues(accessory.ToDataAccessModel());
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
     {
         public static Domain.Accessory? ToDomainModel(this Invent.Accessory accessory)
         {
-            return Domain.Accessory.Reconstitute(accessory.Id, accessory.Name, accessory.Quantity, accessory.Date);
+            return Domain.Accessory.Reconstitute(accessory.Id, accessory.Name, accessory.Quantity, accessory.AssignedQuantity, accessory.Date);
         }
 
         public static Invent.Accessory ToDataAccessModel(this Domain.Accessory accessory)
@@ -19,6 +19,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 Id = accessory.Id,
                 Name = accessory.Name,
                 Quantity = accessory.Quantity,
+                AssignedQuantity = accessory.AssignedQuantity,
                 Date = accessory.Date
             };
         }

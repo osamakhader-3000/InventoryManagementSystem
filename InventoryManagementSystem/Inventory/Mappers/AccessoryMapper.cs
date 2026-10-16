@@ -11,7 +11,10 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 Id = accessory.Id,
                 Name = accessory.Name,
                 Quantity = accessory.Quantity,
+                AssignedQuantity = accessory.AssignedQuantity,
+                AvailableQuantity = accessory.Quantity - accessory.AssignedQuantity,
                 Date = accessory.Date
+
             };
         }
 
