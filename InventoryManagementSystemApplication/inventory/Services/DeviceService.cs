@@ -27,6 +27,10 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             return await _deviceRepository.GetById(deviceId);
         }
+        public async Task<Device?> GetBySerialNumber(string serialNumber)
+        {
+            return await _deviceRepository.GetBySerialNumber(serialNumber);
+        }
         public async Task Update(Device device)
         {
             await _deviceRepository.Update(device);

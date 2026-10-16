@@ -39,6 +39,16 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbDevice.ToDomainModel();
         }
 
+        public async Task<Device?> GetBySerialNumber(string serialNumber)
+        {
+            Invent.Device? dbDevice = await _context.InventoryDevices.FirstOrDefaultAsync(x => x.SerialNumber == serialNumber);
+
+            if (dbDevice == null)
+                return null;
+
+            return dbDevice.ToDomainModel();
+        }
+
         public async Task<List<Device>> ListAll()
         {
             var dbDevices = await _context.InventoryDevices.ToListAsync();

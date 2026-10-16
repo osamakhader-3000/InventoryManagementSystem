@@ -13,6 +13,8 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 
         public Task<Device?> Get(Guid deviceId);
 
+        public Task<Device?> GetBySerialNumber(string serialNumber);
+
         public Task Update(Device device);
 
         public Task Delete(Guid deviceId);

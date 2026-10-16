@@ -18,7 +18,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 device.RetirementDate,
                 device.Price,
                 device.SoldPrice ?? 0m,
-                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)device.OperatingSystem);
+                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)device.OperatingSystem,
+                (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)device.Status);
         }
 
         public static Invent.Device ToDataAccessModel(this Domain.Device device)
@@ -33,7 +34,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 RetirementDate = device.RetirementDate,
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
-                OperatingSystem = (byte)device.OperatingSystem
+                OperatingSystem = (byte)device.OperatingSystem,
+                Status = (byte)device.Status
             };
         }
     }

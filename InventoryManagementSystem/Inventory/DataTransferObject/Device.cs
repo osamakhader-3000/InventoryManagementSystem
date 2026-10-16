@@ -11,5 +11,7 @@
         public decimal Price { get; set; } = 0m;
         public decimal SoldPrice { get; set; } = 0m;
         public byte OperatingSystem { get; set; } = 0;
+
+        public byte Status { get; set; } = 0;
     }
 }

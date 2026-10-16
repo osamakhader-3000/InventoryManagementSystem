@@ -23,6 +23,8 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public decimal? SoldPrice { get; set; }
 
+        public byte Status { get; set; }
+
         public List<TrialLog> TrialLogs { get; set; } = new List<TrialLog>();
 
     }

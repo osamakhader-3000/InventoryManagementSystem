@@ -19,6 +19,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
         public decimal SoldPrice { get; private set; }
         public Enums.OperatingSystem OperatingSystem { get; private set; } = Enums.OperatingSystem.Other;
 
+        public Enums.DeviceStatus Status { get; private set; } = Enums.DeviceStatus.New;
+
         private Device(Guid id)
         {
             Id = id;
@@ -32,7 +34,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            Enums.OperatingSystem operatingSystem)
+            Enums.OperatingSystem operatingSystem,
+            Enums.DeviceStatus status)
         {
             return new Device(Guid.NewGuid())
             {
@@ -43,7 +46,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 RetirementDate = retirementDate,
                 Price = price,
                 SoldPrice = soldPrice,
-                OperatingSystem = operatingSystem
+                OperatingSystem = operatingSystem,
+                Status = status
             };
         }
 
@@ -56,7 +60,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            Enums.OperatingSystem operatingSystem)
+            Enums.OperatingSystem operatingSystem,
+            Enums.DeviceStatus status)
         {            
             return new Device(id)
             {
@@ -67,7 +72,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 RetirementDate = retirementDate,
                 Price = price,
                 SoldPrice = soldPrice,
-                OperatingSystem = operatingSystem
+                OperatingSystem = operatingSystem,
+                Status = status
             };
         }
     }

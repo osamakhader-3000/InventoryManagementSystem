@@ -34,6 +34,12 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> CreateDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
         {
+            DomainEntities.Device? existingDevice = await deviceService.GetBySerialNumber(dtoDevice.SerialNumber);
+            if (existingDevice != null)
+            {
+                return Results.Conflict(new { Message = "A device with the same serial number already exists." });
+            }
+
             DomainEntities.Device device = DomainEntities.Device.Create(
                 dtoDevice.Model,
                 dtoDevice.SerialNumber,
@@ -42,7 +48,8 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.RetirementDate,
                 dtoDevice.Price,
                 dtoDevice.SoldPrice,
-                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)dtoDevice.OperatingSystem);
+                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)dtoDevice.OperatingSystem,
+                (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)dtoDevice.Status);
 
             var createdDeviceId = await deviceService.Create(device);
             return Results.Created($"/device/Get/{createdDeviceId}", new { Id = createdDeviceId });
@@ -59,7 +66,8 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.RetirementDate,
                 dtoDevice.Price,
                 dtoDevice.SoldPrice,
-                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)dtoDevice.OperatingSystem);
+                (InventoryManagementSystemDomain.modules.inventory.Enums.OperatingSystem)dtoDevice.OperatingSystem,
+                (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)dtoDevice.Status);
             if (device == null)
                 return Results.BadRequest();
             await deviceService.Update(device);
@@ -90,7 +98,8 @@ namespace InventoryManagementSystem.Inventory.APIs
                 existingDevice.RetirementDate,
                 existingDevice.Price,
                 dtoDevice.SoldPrice,
-                existingDevice.OperatingSystem);
+                existingDevice.OperatingSystem,
+                (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)dtoDevice.Status);
             if (device == null)
                 return Results.BadRequest();
             await deviceService.Update(device);
