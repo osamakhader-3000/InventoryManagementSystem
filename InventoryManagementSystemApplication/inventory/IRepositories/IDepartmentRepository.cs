@@ -9,7 +9,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     {
         Task Create(Department department);
         Task<Department?> GetById(Guid id);
-        Task<List<Department>> ListAll();
+        Task<List<Department>> ListAll(string? name);
         Task Update(Department department);
         Task Delete(Guid id);
     }

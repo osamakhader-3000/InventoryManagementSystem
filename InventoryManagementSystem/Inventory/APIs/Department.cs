@@ -17,9 +17,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             departmentGroup.MapDelete("/delete/{id}", DeleteDepartment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListDepartments([FromServices] IDepartmentService departmentService)
+        private static async Task<IResult> ListDepartments([FromServices] IDepartmentService departmentService,string? name)
         {
-            var departments = await departmentService.List();
+            var departments = await departmentService.List(name);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.DepartmentMapper.ToDtoList(departments));
         }
 
@@ -41,7 +41,7 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> UpdateDepartment([FromServices] IDepartmentService departmentService, [FromBody] Dto.Department dtoDepartment)
         {
-            DomainEntities.Department department = DomainEntities.Department.Create(dtoDepartment.Name);
+            DomainEntities.Department department = DomainEntities.Department.Reconstitute(dtoDepartment.Id, dtoDepartment.Name);
             await departmentService.Update(department);     
             return Results.Ok();
         }

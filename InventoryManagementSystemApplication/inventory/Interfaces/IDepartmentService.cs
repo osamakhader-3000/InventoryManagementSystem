@@ -9,7 +9,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
     {
         public Task<Guid> Create(Department department);
 
-        public Task<List<Department>> List();
+        public Task<List<Department>> List(string? name);
 
         public Task<Department?> Get(Guid departmentId);
 

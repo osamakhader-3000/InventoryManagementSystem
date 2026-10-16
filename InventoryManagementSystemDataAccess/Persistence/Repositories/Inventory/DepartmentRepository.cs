@@ -1,4 +1,5 @@
-﻿using InventoryManagementSystemDomain.modules.inventory.Entities;
+﻿using InventoryManagementSystemDataAccess.Persistence.Extensions;
+using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -44,9 +45,11 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
            return Department.Reconstitute(dbDepartment.Id, dbDepartment.Name);
         }
 
-        public async Task<List<Department>> ListAll()
+        public async Task<List<Department>> ListAll(string? name)
         {
-            var dbDepartments = await _context.InventoryDepartments.ToListAsync();
+            var dbDepartments = await _context.InventoryDepartments
+                .WhereContainsIgnoreCase(d => d.Name, name)
+                .ToListAsync();
             var departments = new List<Department>();
             foreach (var dbDepartment in dbDepartments)
             {

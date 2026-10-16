@@ -19,9 +19,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _departmentRepository.Create(department);
             return department.Id;
         }
-        public async Task<List<Department>> List()
+        public async Task<List<Department>> List(string? name)
         {
-            return await _departmentRepository.ListAll();
+            return await _departmentRepository.ListAll(name);
         }
         public async Task<Department?> Get(Guid departmentId)
         {
