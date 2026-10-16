@@ -10,7 +10,8 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
         public string Model { get; set; } = string.Empty;
         public string SerialNumber { get; set; } = string.Empty;
 
-        public byte OperatingSystem { get; set; }
+        public Guid OperatingSystemId { get; set; }
+        public OperatingSystem OperatingSystem { get; set; } = null!;
 
         public string Specs { get; set; } = string.Empty;
               

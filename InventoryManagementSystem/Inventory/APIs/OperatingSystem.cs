@@ -33,6 +33,11 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> CreateOperatingSystem([FromServices] IOperatingSystemService operatingSystemService, [FromBody] Dto.OperatingSystem dtoOperatingSystem)
         {
+            List<DomainEntities.OperatingSystem> operatingSystems = await operatingSystemService.List();
+
+            if(operatingSystems.Any(os => os.Name.Equals(dtoOperatingSystem.Name, StringComparison.OrdinalIgnoreCase)))            
+                return Results.Conflict($"An operating system with the name '{dtoOperatingSystem.Name}' already exists.");            
+
             DomainEntities.OperatingSystem operatingSystem = DomainEntities.OperatingSystem.Create(dtoOperatingSystem.Name);
 
             var createdOperatingSystemId = await operatingSystemService.Create(operatingSystem);
@@ -41,6 +46,11 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> UpdateOperatingSystem([FromServices] IOperatingSystemService operatingSystemService, [FromBody] Dto.OperatingSystem dtoOperatingSystem)
         {
+            List<DomainEntities.OperatingSystem> operatingSystems = await operatingSystemService.List();
+
+            if(operatingSystems.Any(os => os.Name.Equals(dtoOperatingSystem.Name, StringComparison.OrdinalIgnoreCase) && os.Id != dtoOperatingSystem.Id))
+                return Results.Conflict($"An operating system with the name '{dtoOperatingSystem.Name}' already exists.");
+
             DomainEntities.OperatingSystem operatingSystem = DomainEntities.OperatingSystem.Reconstitute(dtoOperatingSystem.Id, dtoOperatingSystem.Name);
             await operatingSystemService.Update(operatingSystem);
             return Results.Ok();

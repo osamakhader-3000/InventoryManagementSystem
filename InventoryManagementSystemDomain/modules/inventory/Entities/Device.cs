@@ -17,13 +17,14 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
         public DateTime? RetirementDate { get; private set; }
         public decimal Price { get; private set; }
         public decimal SoldPrice { get; private set; }
-        public Enums.OperatingSystem OperatingSystem { get; private set; } = Enums.OperatingSystem.Other;
+        public OperatingSystem OperatingSystem { get; private set; }
 
         public Enums.DeviceStatus Status { get; private set; } = Enums.DeviceStatus.New;
 
-        private Device(Guid id)
+        private Device(Guid id, OperatingSystem operatingSystem)
         {
             Id = id;
+            OperatingSystem = operatingSystem;
         }
 
         public static Device Create(
@@ -34,10 +35,10 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            Enums.OperatingSystem operatingSystem,
+            OperatingSystem operatingSystem,
             Enums.DeviceStatus status)
         {
-            return new Device(Guid.NewGuid())
+            return new Device(Guid.NewGuid(), operatingSystem)
             {
                 Model = model,
                 SerialNumber = serialNumber,
@@ -46,7 +47,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 RetirementDate = retirementDate,
                 Price = price,
                 SoldPrice = soldPrice,
-                OperatingSystem = operatingSystem,
                 Status = status
             };
         }
@@ -60,10 +60,10 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            Enums.OperatingSystem operatingSystem,
+            OperatingSystem operatingSystem,
             Enums.DeviceStatus status)
         {            
-            return new Device(id)
+            return new Device(id, operatingSystem)
             {
                 Model = model,
                 SerialNumber = serialNumber,
@@ -72,7 +72,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 RetirementDate = retirementDate,
                 Price = price,
                 SoldPrice = soldPrice,
-                OperatingSystem = operatingSystem,
                 Status = status
             };
         }

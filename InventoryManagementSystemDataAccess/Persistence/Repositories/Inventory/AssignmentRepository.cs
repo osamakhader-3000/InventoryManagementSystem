@@ -20,7 +20,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         private IQueryable<Invent.Assignment> AssignmentsWithDetails()
         {
             return _context.InventoryAssignments
-                .Include(x => x.Device)
+                .Include(x => x.Device).ThenInclude(x => x.OperatingSystem)
                 .Include(x => x.AssignedUser).ThenInclude(x => x.Department)
                 .Include(x => x.AssignedUser).ThenInclude(x => x.Location)
                 .Include(x => x.AssignmentAccessories).ThenInclude(x => x.Accessory);

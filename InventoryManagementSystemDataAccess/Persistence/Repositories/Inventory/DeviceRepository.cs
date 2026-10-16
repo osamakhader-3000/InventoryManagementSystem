@@ -31,7 +31,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<Device?> GetById(Guid id)
         {
-            Invent.Device? dbDevice = await _context.InventoryDevices.FirstOrDefaultAsync(x => x.Id == id);
+            Invent.Device? dbDevice = await _context.InventoryDevices.Include(x => x.OperatingSystem).FirstOrDefaultAsync(x => x.Id == id);
 
             if (dbDevice == null)
                 return null;
@@ -41,7 +41,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<Device?> GetBySerialNumber(string serialNumber)
         {
-            Invent.Device? dbDevice = await _context.InventoryDevices.FirstOrDefaultAsync(x => x.SerialNumber == serialNumber);
+            Invent.Device? dbDevice = await _context.InventoryDevices.Include(x => x.OperatingSystem).FirstOrDefaultAsync(x => x.SerialNumber == serialNumber);
 
             if (dbDevice == null)
                 return null;
@@ -51,7 +51,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<List<Device>> ListAll()
         {
-            var dbDevices = await _context.InventoryDevices.ToListAsync();
+            var dbDevices = await _context.InventoryDevices.Include(x => x.OperatingSystem).ToListAsync();
             return dbDevices.ToDomainModelList(x => x.ToDomainModel());
         }
 

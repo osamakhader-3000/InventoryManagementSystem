@@ -69,6 +69,12 @@ namespace InventoryManagementSystemDataAccess.Persistence
                 b.Property(e => e.SoldPrice).HasPrecision(12, 2);
 
                 b.HasIndex(e => e.SerialNumber).IsUnique();
+
+                // Many-to-one: a device has one operating system, an operating system has many devices
+                b.HasOne(e => e.OperatingSystem)
+                    .WithMany(e => e.Devices)
+                    .HasForeignKey(e => e.OperatingSystemId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Many-to-one: a user has one department, a department has many users

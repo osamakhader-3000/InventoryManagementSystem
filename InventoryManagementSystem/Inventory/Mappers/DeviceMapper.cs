@@ -16,7 +16,7 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 RetirementDate = device.RetirementDate,
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
-                OperatingSystem = (byte)device.OperatingSystem,
+                OperatingSystem = OperatingSystemMapper.ToDto(device.OperatingSystem),
                 Status = (byte)device.Status
             };
         }
