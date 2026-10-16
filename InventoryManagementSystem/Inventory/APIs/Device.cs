@@ -18,9 +18,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             deviceGroup.MapPut("/sell/", SellDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService)
+        private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService,string? model, string? sn,string? os,DateTime? purDate)
         {
-            var devices = await deviceService.List();
+            var devices = await deviceService.List(model, sn, os, purDate);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.DeviceMapper.ToDtoList(devices));
         }
 
