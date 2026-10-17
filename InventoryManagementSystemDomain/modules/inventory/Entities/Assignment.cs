@@ -22,6 +22,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public Enums.AssignmentActivity Activity { get; private set; }
 
+        public DateTime? LastUpdateDate { get; private set; }
+
 
         private readonly List<Accessory> _accessories = new();
 
@@ -60,14 +62,16 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? returnDate,
             IEnumerable<Accessory> accessories,
             string remarks,
-            Enums.AssignmentActivity activity)
-        {           
+            Enums.AssignmentActivity activity,
+            DateTime? lastUpdateDate = null)
+        {
             var assignment = new Assignment(id, device, assignedUser)
             {
                 AssignmentDate = assignmentDate,
                 ReturnDate = returnDate,
                 Remarks = remarks,
-                Activity = activity
+                Activity = activity,
+                LastUpdateDate = lastUpdateDate
             };
 
             assignment._accessories.AddRange(accessories);

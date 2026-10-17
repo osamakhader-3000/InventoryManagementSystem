@@ -18,7 +18,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 assignment.ReturnDate,
                 assignment.AssignmentAccessories.ToDomainModelList(a => a.Accessory.ToDomainModel()),
                 assignment.Remarks,
-                assignment.IsReturned == 0 ? DomainEnums.AssignmentActivity.Active : DomainEnums.AssignmentActivity.Returned);
+                assignment.IsReturned == 0 ? DomainEnums.AssignmentActivity.Active : DomainEnums.AssignmentActivity.Returned,
+                assignment.Device.TrialLogs.OrderByDescending(t => t.EventDate).Select(t => (DateTime?)t.EventDate).FirstOrDefault());
         }
     }
 }
