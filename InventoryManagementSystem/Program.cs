@@ -173,7 +173,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 
 var apiGroup = app.MapGroup("/api");
-//apiGroup.AddEndpointFilter<SingleFlightSameResponseFilter>();
+apiGroup.AddEndpointFilter<SingleFlightSameResponseFilter>();
 
 var securityGroup = apiGroup.MapGroup("/security");
 
