@@ -71,7 +71,7 @@ namespace InventoryManagementSystemDataAccess.Services
 
         public async Task<SecurityApplicationCore.Models.User> VerifyPassword(string username, string password)
         {
-            User? user = await _context.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.UserName != null && u.UserName == username);
+            User? user = await _context.Users.Include(u => u.UserRoles!).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.UserName != null && u.UserName == username);
 
             if (user is null)
             {

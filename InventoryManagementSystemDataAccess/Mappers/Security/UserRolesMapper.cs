@@ -10,7 +10,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Security
 
         public static SecurityApplicationCore.Models.Role ToCoreModel(this UserRole userRole)
         {
-            return new SecurityApplicationCore.Models.Role(userRole.RoleId, null);
+            return new SecurityApplicationCore.Models.Role(userRole.RoleId, userRole.Role?.Name);
         }
 
         public static UserRole ToUserRoleDataAccessModel(this SecurityApplicationCore.Models.Role role)

@@ -61,7 +61,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Security
                     AccountStatus = u.AccountStatus,
                     EmailVerificationStatus = u.EmailVerificationStatus,
                     LocalAccount = u.LocalAccount,
-                    UserRoles = u.UserRoles,
+                    UserRoles = u.UserRoles!.Select(ur => new UserRole { UserId = ur.UserId, RoleId = ur.RoleId, Role = ur.Role }).ToList(),
                 })
                 .FirstOrDefaultAsync();
             return user == null ? null : UsersMapper.ToCoreModel(user);
@@ -80,7 +80,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Security
                     AccountStatus = u.AccountStatus,
                     EmailVerificationStatus = u.EmailVerificationStatus,
                     LocalAccount = u.LocalAccount,
-                    UserRoles = u.UserRoles,
+                    UserRoles = u.UserRoles!.Select(ur => new UserRole { UserId = ur.UserId, RoleId = ur.RoleId, Role = ur.Role }).ToList(),
                 }).FirstOrDefaultAsync();
                 
             return user == null ? null : UsersMapper.ToCoreModel(user);
@@ -103,7 +103,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Security
                 AccountStatus = u.AccountStatus,
                 EmailVerificationStatus = u.EmailVerificationStatus,
                 LocalAccount = u.LocalAccount,
-                UserRoles = u.UserRoles,
+                UserRoles = u.UserRoles!.Select(ur => new UserRole { UserId = ur.UserId, RoleId = ur.RoleId, Role = ur.Role }).ToList(),
             }).ToListAsync();
             return users.Select(u => UsersMapper.ToCoreModel(u)).ToList();
         }
@@ -120,7 +120,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Security
                     AccountStatus=u.AccountStatus,
                     EmailVerificationStatus=u.EmailVerificationStatus,
                     LocalAccount=u.LocalAccount,
-                    UserRoles=u.UserRoles,
+                    UserRoles = u.UserRoles!.Select(ur => new UserRole { UserId = ur.UserId, RoleId = ur.RoleId, Role = ur.Role }).ToList(),
                 }).ToListAsync();
                 
             return users.Select(u => UsersMapper.ToCoreModel(u)).ToList();

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using SecurityApplicationCore.Models;
 
 namespace SecurityApplicationPresentation.AuthorizationPolicies
@@ -7,9 +7,7 @@ namespace SecurityApplicationPresentation.AuthorizationPolicies
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, TechnicalSupportLevelRequirement requirement)
         {
-            var claim = context.User.FindFirst(nameof(UserRole));
-
-            if (claim != null && (claim.Value == ((byte)UserRole.Administrator).ToString() || claim.Value ==  ((byte)UserRole.TechnicalSupport).ToString()))
+            if (context.User.IsInRole(Roles.Admin) || context.User.IsInRole(Roles.TechnicalSupport))
             {
                 context.Succeed(requirement);
             }
