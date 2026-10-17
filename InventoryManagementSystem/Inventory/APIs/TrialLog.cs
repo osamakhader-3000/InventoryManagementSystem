@@ -11,9 +11,24 @@ namespace InventoryManagementSystem.Inventory.APIs
             trialLogGroup.MapGet("/list", ListTrialLogs).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListTrialLogs([FromServices] ITrialLogService trialLogService)
+        private static async Task<IResult> ListTrialLogs([FromServices] ITrialLogService trialLogService
+            , Guid? userid
+            , Guid? depid
+            , DateTime? eventDate
+            , int? ta
+            , string? sn
+            , string? model
+            ,int? status)
         {
-            var trialLogs = await trialLogService.List();
+            InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transactionType = null;
+            if (ta.HasValue)            
+                transactionType = (InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType)ta.Value;
+
+            InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus? deviceStatus = null;
+            if (status.HasValue)
+                deviceStatus = (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)status.Value;
+
+            var trialLogs = await trialLogService.List(userid, depid, eventDate, transactionType, sn, model, deviceStatus);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.TrialLogMapper.ToDtoList(trialLogs));
         }
     }
