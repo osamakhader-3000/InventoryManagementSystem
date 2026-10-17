@@ -20,7 +20,9 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 trialLog.Device?.Model,
                 trialLog.Device?.SerialNumber,
                 trialLog.User?.Name,
-                trialLog.Agent?.UserName);
+                trialLog.Agent?.UserName,
+                trialLog.User?.Location?.Name,
+                (DomainEnums.DeviceStatus?)trialLog.Device?.Status);
         }
     }
 }

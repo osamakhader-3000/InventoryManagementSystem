@@ -36,7 +36,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         {
             var dbTrialLogs = await _context.InventoryTrialLogs
                 .Include(x => x.Device)
-                .Include(x => x.User)
+                .Include(x => x.User).ThenInclude(x => x.Location)
                 .Include(x => x.Agent)
                 .OrderByDescending(x => x.EventDate)
                 .ToListAsync();

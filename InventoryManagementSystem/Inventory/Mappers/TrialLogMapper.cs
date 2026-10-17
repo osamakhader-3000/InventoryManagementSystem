@@ -17,7 +17,9 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 EventDate = trialLog.EventDate,
                 TransactionType = (byte)trialLog.TransactionType,
                 AgentId = trialLog.AgentId,
-                AgentName = trialLog.AgentName ?? string.Empty
+                AgentName = trialLog.AgentName ?? string.Empty,
+                LocationName = trialLog.LocationName ?? string.Empty,
+                Status = (byte)(trialLog.Status ?? 0)
             };
         }
 

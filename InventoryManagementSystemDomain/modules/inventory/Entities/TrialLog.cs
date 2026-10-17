@@ -27,6 +27,10 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public string? AgentName { get; private set; }
 
+        public string? LocationName { get; private set; }
+
+        public DeviceStatus? Status { get; private set; }
+
         private TrialLog(long? id)
         {
             Id = id;
@@ -54,7 +58,9 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             string? deviceModel,
             string? deviceSerialNumber,
             string? userName,
-            string? agentName)
+            string? agentName,
+            string? locationName,
+            DeviceStatus? status)
         {
             return new TrialLog(id)
             {
@@ -66,7 +72,9 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 DeviceModel = deviceModel,
                 DeviceSerialNumber = deviceSerialNumber,
                 UserName = userName,
-                AgentName = agentName
+                AgentName = agentName,
+                LocationName = locationName,
+                Status = status
             };
         }
     }
