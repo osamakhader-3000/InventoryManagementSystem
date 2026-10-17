@@ -21,6 +21,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public Enums.DeviceStatus Status { get; private set; } = Enums.DeviceStatus.New;
 
+        public Enums.Availability IsTaken { get; private set; } = Enums.Availability.Taken;
+
         private Device(Guid id, OperatingSystem operatingSystem)
         {
             Id = id;
@@ -47,7 +49,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 RetirementDate = retirementDate,
                 Price = price,
                 SoldPrice = soldPrice,
-                Status = status
+                Status = status,
+                IsTaken = Enums.Availability.Available
             };
         }
 
@@ -61,7 +64,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             decimal price,
             decimal soldPrice,
             OperatingSystem operatingSystem,
-            Enums.DeviceStatus status)
+            Enums.DeviceStatus status,
+            Enums.Availability isAvailable = Enums.Availability.Available)
         {            
             return new Device(id, operatingSystem)
             {
@@ -72,7 +76,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 RetirementDate = retirementDate,
                 Price = price,
                 SoldPrice = soldPrice,
-                Status = status
+                Status = status,
+                IsTaken = isAvailable
             };
         }
     }

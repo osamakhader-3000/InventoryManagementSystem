@@ -26,6 +26,8 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public byte Status { get; set; }
 
+        public byte IsTaken { get; set; }
+
         public List<TrialLog> TrialLogs { get; set; } = new List<TrialLog>();
 
     }

@@ -1,6 +1,7 @@
 ﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
 using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -77,8 +78,26 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public Task Update(Device device)
         {
-            _context.InventoryDevices.Update(device.ToDataAccessModel());
+            var entry = _context.InventoryDevices.Update(device.ToDataAccessModel());
+            // Availability is owned by assignments, so device edits must not overwrite it
+            entry.Property(x => x.IsTaken).IsModified = false;
             return _context.SaveChangesAsync();
+        }
+
+        // Single UPDATE statement so two concurrent assignments can't both take the device; returns false when already taken
+        public async Task<bool> MarkTaken(Guid id)
+        {
+            int affectedRows = await _context.InventoryDevices
+                .Where(x => x.Id == id && x.IsTaken == (byte)Availability.Available)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsTaken, (byte)Availability.Taken));
+            return affectedRows == 1;
+        }
+
+        public Task MarkAvailable(Guid id)
+        {
+            return _context.InventoryDevices
+                .Where(x => x.Id == id)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsTaken, (byte)Availability.Available));
         }
     }
 }

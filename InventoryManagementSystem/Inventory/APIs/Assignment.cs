@@ -56,7 +56,10 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (device == null)
                 return Results.BadRequest("Device not found");
             
-            if(dtoAssignment.AssignedUser == null)
+            if(device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
+                return Results.Conflict("Device is already assigned");
+
+            if (dtoAssignment.AssignedUser == null)
                 return Results.BadRequest("Assigned user is required");
 
             var assignedUser = await userService.Get(dtoAssignment.AssignedUser.Id);
@@ -71,6 +74,12 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (missingAccessoryIds.Any())
                 return Results.BadRequest($"Accessories not found: {string.Join(", ", missingAccessoryIds)}");
 
+            if (accessories.Any(a => a.AssignedQuantity == a.Quantity))
+            {
+                var outOfStockAccessories = accessories.Where(a => a.AssignedQuantity == a.Quantity).ToList();
+                return Results.Conflict($"Accessories out of stock: {string.Join(", ", outOfStockAccessories)}");
+            }                      
+
             DomainEntities.Assignment assignment = DomainEntities.Assignment.Create(
                 device,
                 assignedUser,
@@ -84,7 +93,11 @@ namespace InventoryManagementSystem.Inventory.APIs
                 var createdAssignmentId = await assignmentService.Create(assignment, agentId.Value);
                 return Results.Created($"/assignment/Get/{createdAssignmentId}", new { Id = createdAssignmentId });
             }
-            catch (AccessoryOutOfStockException ex)
+            catch (AccessoryOutOfStockException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+            catch (DeviceUnavailableException ex)
             {
                 return Results.Conflict(ex.Message);
             }
@@ -147,7 +160,11 @@ namespace InventoryManagementSystem.Inventory.APIs
                 await assignmentService.Update(assignment, agentId.Value);
                 return Results.Ok();
             }
-            catch (AccessoryOutOfStockException ex)
+            catch (AccessoryOutOfStockException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+            catch (DeviceUnavailableException ex)
             {
                 return Results.Conflict(ex.Message);
             }

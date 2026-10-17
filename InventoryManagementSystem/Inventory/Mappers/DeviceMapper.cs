@@ -17,7 +17,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
                 OperatingSystem = OperatingSystemMapper.ToDto(device.OperatingSystem),
-                Status = (byte)device.Status
+                Status = (byte)device.Status,
+                IsTaken = (byte)device.IsTaken
             };
         }
 

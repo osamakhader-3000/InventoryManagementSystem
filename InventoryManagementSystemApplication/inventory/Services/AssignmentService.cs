@@ -14,16 +14,19 @@ namespace InventoryManagementSystemApplication.inventory.Services
     {
         private readonly IAssignmentRepository _assignmentRepository;
         private readonly IAccessoryRepository _accessoryRepository;
+        private readonly IDeviceRepository _deviceRepository;
         private readonly ITrialLogRepository _trialLogRepository;
         private readonly IUnitOfWork _unitOfWork;
         public AssignmentService(
             IAssignmentRepository assignmentRepository,
             IAccessoryRepository accessoryRepository,
+            IDeviceRepository deviceRepository,
             ITrialLogRepository trialLogRepository,
             IUnitOfWork unitOfWork)
         {
             _assignmentRepository = assignmentRepository;
             _accessoryRepository = accessoryRepository;
+            _deviceRepository = deviceRepository;
             _trialLogRepository = trialLogRepository;
             _unitOfWork = unitOfWork;
         }
@@ -35,6 +38,8 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 createdAssignmentId = await _assignmentRepository.Create(assignment);
+
+                await TakeDevice(assignment.Device.Id);
 
                 await IncrementAssignedQuantities(DistinctAccessoryIds(assignment));
 
@@ -70,6 +75,12 @@ namespace InventoryManagementSystemApplication.inventory.Services
 
                 await _assignmentRepository.Update(assignment);
 
+                if (existingAssignment.Device.Id != assignment.Device.Id)
+                {
+                    await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
+                    await TakeDevice(assignment.Device.Id);
+                }
+
                 await IncrementAssignedQuantities(newAccessoryIds.Except(existingAccessoryIds));
 
                 // Already at 0 means the count was out of sync; nothing to release, so the result is ignored
@@ -78,6 +89,13 @@ namespace InventoryManagementSystemApplication.inventory.Services
 
                 await AddTrialLog(assignment, transactionType, agentId);
             });
+        }
+
+        private async Task TakeDevice(Guid deviceId)
+        {
+            // Throwing rolls back the whole transaction
+            if (!await _deviceRepository.MarkTaken(deviceId))
+                throw new DeviceUnavailableException(deviceId);
         }
 
         private async Task IncrementAssignedQuantities(IEnumerable<Guid> accessoryIds)
@@ -115,7 +133,16 @@ namespace InventoryManagementSystemApplication.inventory.Services
         }
         public async Task Delete(long assignmentId)
         {
-            await _assignmentRepository.Delete(assignmentId);
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var existingAssignment = await _assignmentRepository.GetById(assignmentId);
+                if (existingAssignment == null)
+                    return;
+
+                await _assignmentRepository.Delete(assignmentId);
+
+                await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
+            });
         }
 
         public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)
