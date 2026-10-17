@@ -8,5 +8,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     public interface ITrialLogRepository
     {
         Task Create(TrialLog trialLog);
+        Task<List<TrialLog>> ListAll();
     }
 }

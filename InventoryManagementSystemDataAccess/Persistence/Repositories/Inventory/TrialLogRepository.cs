@@ -1,5 +1,7 @@
+using InventoryManagementSystemDataAccess.Mappers.Inventory;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,6 +30,17 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
             _context.InventoryTrialLogs.Add(dbTrialLog);
             return _context.SaveChangesAsync();
+        }
+
+        public async Task<List<TrialLog>> ListAll()
+        {
+            var dbTrialLogs = await _context.InventoryTrialLogs
+                .Include(x => x.Device)
+                .Include(x => x.User)
+                .Include(x => x.Agent)
+                .OrderByDescending(x => x.EventDate)
+                .ToListAsync();
+            return dbTrialLogs.ToDomainModelList(x => x.ToDomainModel());
         }
     }
 }

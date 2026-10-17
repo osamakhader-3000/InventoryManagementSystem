@@ -19,6 +19,14 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public Guid AgentId { get; private set; }
 
+        public string? DeviceModel { get; private set; }
+
+        public string? DeviceSerialNumber { get; private set; }
+
+        public string? UserName { get; private set; }
+
+        public string? AgentName { get; private set; }
+
         private TrialLog(long? id)
         {
             Id = id;
@@ -33,6 +41,32 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 EventDate = eventDate,
                 TransactionType = transactionType,
                 AgentId = agentId
+            };
+        }
+
+        public static TrialLog Reconstitute(
+            long id,
+            Guid deviceId,
+            Guid userId,
+            DateTime eventDate,
+            TransactionType transactionType,
+            Guid agentId,
+            string? deviceModel,
+            string? deviceSerialNumber,
+            string? userName,
+            string? agentName)
+        {
+            return new TrialLog(id)
+            {
+                DeviceId = deviceId,
+                UserId = userId,
+                EventDate = eventDate,
+                TransactionType = transactionType,
+                AgentId = agentId,
+                DeviceModel = deviceModel,
+                DeviceSerialNumber = deviceSerialNumber,
+                UserName = userName,
+                AgentName = agentName
             };
         }
     }

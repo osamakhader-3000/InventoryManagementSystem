@@ -191,5 +191,6 @@ InventoryManagementSystem.Inventory.APIs.Device.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.User.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.Assignment.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.OperatingSystem.Map(app, inventoryGroup);
+InventoryManagementSystem.Inventory.APIs.TrialLog.Map(app, inventoryGroup);
 
 app.Run();
