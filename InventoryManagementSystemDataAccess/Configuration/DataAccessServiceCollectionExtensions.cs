@@ -48,6 +48,8 @@ namespace InventoryManagementSystemDataAccess.Configuration
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
             services.AddScoped<IOperatingSystemRepository, OperatingSystemRepository>();
+            services.AddScoped<ITrialLogRepository, TrialLogRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<SecurityApplicationLogic.Interfaces.IRoleDataService, RoleDataService>();
 
             return services;

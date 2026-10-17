@@ -52,6 +52,23 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAccessories.ToDomainModelList(x => x.ToDomainModel());
         }
 
+        // Single UPDATE statement so concurrent assignments can't lose an increment; returns false when out of stock
+        public async Task<bool> IncrementAssignedQuantity(Guid id)
+        {
+            int affectedRows = await _context.InventoryAccessories
+                .Where(x => x.Id == id && x.AssignedQuantity < x.Quantity)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.AssignedQuantity, x => x.AssignedQuantity + 1));
+            return affectedRows == 1;
+        }
+
+        public async Task<bool> DecrementAssignedQuantity(Guid id)
+        {
+            int affectedRows = await _context.InventoryAccessories
+                .Where(x => x.Id == id && x.AssignedQuantity > 0)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.AssignedQuantity, x => x.AssignedQuantity - 1));
+            return affectedRows == 1;
+        }
+
         public async Task<List<Accessory>> List(string? name,bool? stock)
         {
             var query = _context.InventoryAccessories.AsQueryable();

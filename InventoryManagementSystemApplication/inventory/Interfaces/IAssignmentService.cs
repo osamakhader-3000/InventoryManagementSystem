@@ -7,13 +7,15 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 {
     public interface IAssignmentService
     {
-        public Task<long> Create(Assignment assignment);
+        public Task<long> Create(Assignment assignment, Guid agentId);
 
         public Task<List<Assignment>> List(Guid? userId, Guid? depId, DateTime? purDate);
 
         public Task<Assignment?> Get(long assignmentId);
 
-        public Task Update(Assignment assignment);
+        public Task Update(Assignment assignment, Guid agentId);
+
+        public Task Relocate(Assignment assignment, Guid agentId);
 
         public Task Delete(long assignmentId);
         Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId);

@@ -1,6 +1,9 @@
-﻿using InventoryManagementSystemApplication.inventory.Interfaces;
+﻿using InventoryManagementSystemApplication.inventory.Exceptions;
+using InventoryManagementSystemApplication.inventory.Interfaces;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
+using SecurityApplicationLogic.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,13 +13,96 @@ namespace InventoryManagementSystemApplication.inventory.Services
     public class AssignmentService : IAssignmentService
     {
         private readonly IAssignmentRepository _assignmentRepository;
-        public AssignmentService(IAssignmentRepository assignmentRepository)
+        private readonly IAccessoryRepository _accessoryRepository;
+        private readonly ITrialLogRepository _trialLogRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        public AssignmentService(
+            IAssignmentRepository assignmentRepository,
+            IAccessoryRepository accessoryRepository,
+            ITrialLogRepository trialLogRepository,
+            IUnitOfWork unitOfWork)
         {
             _assignmentRepository = assignmentRepository;
+            _accessoryRepository = accessoryRepository;
+            _trialLogRepository = trialLogRepository;
+            _unitOfWork = unitOfWork;
         }
-        public async Task<long> Create(Assignment assignment)
+
+        public async Task<long> Create(Assignment assignment, Guid agentId)
         {
-            return await _assignmentRepository.Create(assignment);
+            long createdAssignmentId = 0;
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                createdAssignmentId = await _assignmentRepository.Create(assignment);
+
+                await IncrementAssignedQuantities(DistinctAccessoryIds(assignment));
+
+                await AddTrialLog(assignment, TransactionType.Assign, agentId);
+            });
+
+            return createdAssignmentId;
+        }
+
+        public Task Update(Assignment assignment, Guid agentId)
+        {
+            return UpdateWithTrialLog(assignment, TransactionType.Update, agentId);
+        }
+
+        public Task Relocate(Assignment assignment, Guid agentId)
+        {
+            return UpdateWithTrialLog(assignment, TransactionType.Relocate, agentId);
+        }
+
+        private async Task UpdateWithTrialLog(Assignment assignment, TransactionType transactionType, Guid agentId)
+        {
+            if (assignment.Id == null)
+                throw new ArgumentException("Assignment id is required", nameof(assignment));
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var existingAssignment = await _assignmentRepository.GetById(assignment.Id.Value);
+                if (existingAssignment == null)
+                    return;
+
+                var existingAccessoryIds = DistinctAccessoryIds(existingAssignment);
+                var newAccessoryIds = DistinctAccessoryIds(assignment);
+
+                await _assignmentRepository.Update(assignment);
+
+                await IncrementAssignedQuantities(newAccessoryIds.Except(existingAccessoryIds));
+
+                // Already at 0 means the count was out of sync; nothing to release, so the result is ignored
+                foreach (var accessoryId in existingAccessoryIds.Except(newAccessoryIds))
+                    await _accessoryRepository.DecrementAssignedQuantity(accessoryId);
+
+                await AddTrialLog(assignment, transactionType, agentId);
+            });
+        }
+
+        private async Task IncrementAssignedQuantities(IEnumerable<Guid> accessoryIds)
+        {
+            foreach (var accessoryId in accessoryIds)
+            {
+                // Throwing rolls back the whole transaction
+                if (!await _accessoryRepository.IncrementAssignedQuantity(accessoryId))
+                    throw new AccessoryOutOfStockException(accessoryId);
+            }
+        }
+
+        private Task AddTrialLog(Assignment assignment, TransactionType transactionType, Guid agentId)
+        {
+            return _trialLogRepository.Create(TrialLog.Create(
+                assignment.Device.Id,
+                assignment.AssignedUser.Id,
+                DateTime.UtcNow,
+                transactionType,
+                agentId));
+        }
+
+        private static List<Guid> DistinctAccessoryIds(Assignment assignment)
+        {
+            return assignment.Accessories.Select(x => x.Id).Distinct().ToList();
         }
 
         public async Task<List<Assignment>> List(Guid? userId, Guid? depId, DateTime? purDate)
@@ -26,10 +112,6 @@ namespace InventoryManagementSystemApplication.inventory.Services
         public async Task<Assignment?> Get(long assignmentId)
         {
             return await _assignmentRepository.GetById(assignmentId);
-        }
-        public async Task Update(Assignment assignment)
-        {
-            await _assignmentRepository.Update(assignment);
         }
         public async Task Delete(long assignmentId)
         {

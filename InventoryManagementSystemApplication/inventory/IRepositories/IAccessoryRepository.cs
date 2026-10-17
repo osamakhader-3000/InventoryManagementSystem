@@ -13,5 +13,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
         Task Update(Accessory accessory);
         Task Delete(Guid id);
         Task<IEnumerable<Accessory>> ListByIds(List<Guid> ids);
+        Task<bool> IncrementAssignedQuantity(Guid id);
+        Task<bool> DecrementAssignedQuantity(Guid id);
     }
 }

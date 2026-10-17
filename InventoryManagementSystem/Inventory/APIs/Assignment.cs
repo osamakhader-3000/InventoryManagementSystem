@@ -1,5 +1,7 @@
+using InventoryManagementSystemApplication.inventory.Exceptions;
 using InventoryManagementSystemApplication.inventory.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 using DomainEntities = InventoryManagementSystemDomain.modules.inventory.Entities;
 
@@ -36,12 +38,17 @@ namespace InventoryManagementSystem.Inventory.APIs
         }
 
         private static async Task<IResult> CreateAssignment(
+            HttpContext http,
             [FromServices] IAssignmentService assignmentService,
             [FromServices] IDeviceService deviceService,
             [FromServices] IUserService userService,
             [FromServices] IAccessoryService accessoryService,
             [FromBody] Dto.Assignment dtoAssignment)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             if(dtoAssignment.Device == null)
                 return Results.BadRequest("Device is required");
 
@@ -72,18 +79,30 @@ namespace InventoryManagementSystem.Inventory.APIs
                 accessories,
                 dtoAssignment.Remarks);
 
-            var createdAssignmentId = await assignmentService.Create(assignment);
-            return Results.Created($"/assignment/Get/{createdAssignmentId}", new { Id = createdAssignmentId });
+            try
+            {
+                var createdAssignmentId = await assignmentService.Create(assignment, agentId.Value);
+                return Results.Created($"/assignment/Get/{createdAssignmentId}", new { Id = createdAssignmentId });
+            }
+            catch (AccessoryOutOfStockException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
         }
              
 
         private static async Task<IResult> UpdateAssignment(
+            HttpContext http,
             [FromServices] IAssignmentService assignmentService,
             [FromServices] IDeviceService deviceService,
             [FromServices] IUserService userService,
             [FromServices] IAccessoryService accessoryService,
             [FromBody] Dto.Assignment dtoAssignment)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             if (dtoAssignment.Device == null)
                 return Results.BadRequest("Device is required");
 
@@ -123,15 +142,27 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (assignment == null)
                 return Results.BadRequest();
 
-            await assignmentService.Update(assignment);
-            return Results.Ok();
+            try
+            {
+                await assignmentService.Update(assignment, agentId.Value);
+                return Results.Ok();
+            }
+            catch (AccessoryOutOfStockException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
         }
 
         private static async Task<IResult> RelocateAssignment(
+            HttpContext http,
             [FromServices] IAssignmentService assignmentService,
             [FromServices] IUserService userService,
             [FromBody] Dto.Assignment dtoAssignment)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             if (dtoAssignment.AssignedUser == null)
                 return Results.BadRequest("Assigned user is required");
 
@@ -152,8 +183,14 @@ namespace InventoryManagementSystem.Inventory.APIs
                 existingAssignment.Accessories,
                 dtoAssignment.Remarks);
                       
-            await assignmentService.Update(assignment);
+            await assignmentService.Relocate(assignment, agentId.Value);
             return Results.Ok();
+        }
+
+        private static Guid? GetAgentId(HttpContext http)
+        {
+            string? userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(userId, out Guid agentId) ? agentId : null;
         }
 
 
