@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
+using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
@@ -73,7 +74,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAssignment.ToDomainModel();
         }
 
-        public async Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate)
+        public async Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate, string? model, string? serialNumber, bool? isReturned)
         {
             var query = AssignmentsWithDetails();
 
@@ -85,9 +86,21 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
             if (purDate.HasValue)
             {
-                var purchaseDate = purDate.Value.Date;
+                var purchaseDate = DateTime.SpecifyKind(purDate.Value.Date, DateTimeKind.Utc);
                 var nextDay = purchaseDate.AddDays(1);
                 query = query.Where(x => x.Device.PurchasedDate >= purchaseDate && x.Device.PurchasedDate < nextDay);
+            }
+
+            if (!string.IsNullOrEmpty(model))
+                query = query.WhereContainsIgnoreCase(x => x.Device.Model, model);
+
+            if (!string.IsNullOrEmpty(serialNumber))
+                query = query.Where(x => x.Device.SerialNumber == serialNumber);
+
+            if (isReturned.HasValue)
+            {
+                byte returnedFlag = (byte)(isReturned.Value ? 1 : 0);
+                query = query.Where(x => x.IsReturned == returnedFlag);
             }
 
             var dbAssignments = await query.ToListAsync();

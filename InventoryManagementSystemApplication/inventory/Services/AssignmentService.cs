@@ -146,9 +146,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
             return assignment.Accessories.Select(x => x.Id).Distinct().ToList();
         }
 
-        public async Task<List<Assignment>> List(Guid? userId, Guid? depId, DateTime? purDate)
+        public async Task<List<Assignment>> List(Guid? userId, Guid? depId, DateTime? purDate, string? model, string? serialNumber, bool? isReturned)
         {
-            return await _assignmentRepository.ListAll(userId, depId, purDate);
+            return await _assignmentRepository.ListAll(userId, depId, purDate, model, serialNumber, isReturned);
         }
         public async Task<Assignment?> Get(long assignmentId)
         {

@@ -9,7 +9,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     {
         Task<long> Create(Assignment assignment);
         Task<Assignment?> GetById(long id);
-        Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate);
+        Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate, string? model, string? serialNumber, bool? isReturned);
         Task Update(Assignment assignment);
         Task Delete(long id);
         Task Return(long id, DateTime returnDate);
