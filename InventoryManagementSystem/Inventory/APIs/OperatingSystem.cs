@@ -56,8 +56,17 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteOperatingSystem([FromServices] IOperatingSystemService operatingSystemService, Guid id)
+        private static async Task<IResult> DeleteOperatingSystem([FromServices] IOperatingSystemService operatingSystemService, [FromServices] IDeviceService deviceService, Guid id)
         {
+            var operatingSystem = await operatingSystemService.Get(id);
+            if (operatingSystem == null)
+                return Results.NotFound();
+
+            var devicesWithOperatingSystem = await deviceService.List(null, null, operatingSystem.Name, null);
+
+            if (devicesWithOperatingSystem.Any())
+                return Results.Conflict($"Cannot delete operating system '{operatingSystem.Name}' because it is used by one or more devices.");
+
             await operatingSystemService.Delete(id);
             return Results.Ok();
         }

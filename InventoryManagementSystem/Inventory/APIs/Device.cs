@@ -93,6 +93,16 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> DeleteDevice([FromServices] IDeviceService deviceService, Guid id)
         {
+            var existingDevice = await deviceService.Get(id);
+
+            if (existingDevice == null)            
+                return Results.NotFound();           
+
+           
+            if (existingDevice.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)            
+                return Results.BadRequest(new { Message = "Cannot delete a taken device." });            
+            
+
             await deviceService.Delete(id);
             return Results.Ok();
         }

@@ -46,8 +46,15 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteDepartment([FromServices] IDepartmentService departmentService, Guid id)
+        private static async Task<IResult> DeleteDepartment([FromServices] IDepartmentService departmentService, [FromServices] IUserService userService, Guid id)
         {
+            var usersInDepartment = await userService.List(null, id, null);
+
+            if (usersInDepartment.Any())
+            {
+                return Results.BadRequest("Cannot delete department because it has one or more users associated with it.");
+            }
+
             await departmentService.Delete(id);
             return Results.Ok();
         }

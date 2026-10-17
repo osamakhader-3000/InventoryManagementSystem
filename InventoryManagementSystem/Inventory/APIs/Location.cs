@@ -48,8 +48,16 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteLocation([FromServices] ILocationService locationService, Guid id)
+        private static async Task<IResult> DeleteLocation([FromServices] ILocationService locationService, [FromServices] IUserService userService, Guid id)
         {
+            //check if any users are associated with this location before deleting
+            var usersInLocation = await userService.List(null, null, id);
+
+            if (usersInLocation.Any())
+            {
+                return Results.BadRequest("Cannot delete location because it has one or more users associated with it.");
+            }
+
             await locationService.Delete(id);
             return Results.Ok();
         }

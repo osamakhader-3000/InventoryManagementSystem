@@ -28,7 +28,10 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public Task Delete(Guid id)
         {
-            _context.InventoryOperatingSystems.Remove(new Invent.OperatingSystem { Id = id });
+            var dbOperatingSystem = _context.InventoryOperatingSystems.Local.FirstOrDefault(x => x.Id == id)
+                ?? new Invent.OperatingSystem { Id = id };
+
+            _context.InventoryOperatingSystems.Remove(dbOperatingSystem);
             return _context.SaveChangesAsync();
         }
 
