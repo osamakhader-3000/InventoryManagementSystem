@@ -65,7 +65,7 @@ namespace SecurityApplicationLogic.Services
                 throw new ValidationException("Username already in use");
             }
 
-            User user = User.Create(email, username, password, true, UserEmailVerificationStatus.Unverified, UserAccountStatus.Temporary);
+            User user = User.Create(email, username, password, true, UserEmailVerificationStatus.Verified, UserAccountStatus.Temporary);
 
             List<Role> roles = new List<Role>();
 

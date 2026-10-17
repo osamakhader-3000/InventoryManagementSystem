@@ -184,7 +184,7 @@ namespace UsersApplicationPresentation.APIs
             if (user == null)            
                 return TypedResults.InternalServerError("User account creation failed");
             
-            usersService.SendAccountVerificationEmail(user);
+            //usersService.SendAccountVerificationEmail(user);
 
             SecurityApplicationCore.Models.AccessToken? accessToken = await SecurityApplicationPresentation.Cookies.CookiesSupplier.AppendUserTokens(http.Response.Cookies, user, usersTokenService);
 
