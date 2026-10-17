@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Domain = InventoryManagementSystemDomain.modules.inventory.Entities;
+using DomainEnums = InventoryManagementSystemDomain.modules.inventory.Enums;
 using Invent = InventoryManagementSystemDataAccess.Models.Inventory;
 
 namespace InventoryManagementSystemDataAccess.Mappers.Inventory
@@ -16,7 +17,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 assignment.AssignmentDate,
                 assignment.ReturnDate,
                 assignment.AssignmentAccessories.ToDomainModelList(a => a.Accessory.ToDomainModel()),
-                assignment.Remarks);
+                assignment.Remarks,
+                assignment.IsReturned == 0 ? DomainEnums.AssignmentActivity.Active : DomainEnums.AssignmentActivity.Returned);
         }
     }
 }

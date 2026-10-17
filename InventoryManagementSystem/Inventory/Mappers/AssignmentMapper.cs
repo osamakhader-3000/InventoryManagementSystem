@@ -14,7 +14,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 Remarks = assignment.Remarks,
                 Device = DeviceMapper.ToDto(assignment.Device),
                 AssignedUser = UserMapper.ToDto(assignment.AssignedUser),
-                Accessories = AccessoryMapper.ToDtoList(assignment.Accessories)
+                Accessories = AccessoryMapper.ToDtoList(assignment.Accessories),
+                IsReturned = (byte)(assignment.Activity == InventoryManagementSystemDomain.modules.inventory.Enums.AssignmentActivity.Returned ? 1 : 0)
             };
         }
 

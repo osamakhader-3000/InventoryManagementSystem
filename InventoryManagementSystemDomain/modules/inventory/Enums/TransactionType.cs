@@ -9,5 +9,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.Enums
         Assign = 0,
         Update = 1,
         Relocate = 2,
+        Return = 3,
     }
 }

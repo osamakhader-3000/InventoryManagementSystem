@@ -118,6 +118,22 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             await _context.SaveChangesAsync();
         }
 
+        public async Task Return(long id, DateTime returnDate)
+        {
+            Invent.Assignment? dbAssignment = await _context.InventoryAssignments
+                .Include(x => x.AssignmentAccessories)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (dbAssignment == null)
+                return;
+
+            dbAssignment.IsReturned = 1;
+            dbAssignment.ReturnDate = returnDate;
+            dbAssignment.AssignmentAccessories.Clear();
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)
         {
             var dbAssignments = await AssignmentsWithDetails()

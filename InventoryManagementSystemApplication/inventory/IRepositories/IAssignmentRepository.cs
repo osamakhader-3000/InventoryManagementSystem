@@ -12,6 +12,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
         Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate);
         Task Update(Assignment assignment);
         Task Delete(long id);
+        Task Return(long id, DateTime returnDate);
         Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId);
     }
 }

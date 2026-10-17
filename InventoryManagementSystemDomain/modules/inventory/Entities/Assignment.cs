@@ -20,6 +20,9 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public string Remarks { get; private set; } = string.Empty;
 
+        public Enums.AssignmentActivity Activity { get; private set; }
+
+
         private readonly List<Accessory> _accessories = new();
 
         private Assignment(long? id, Device device, User assignedUser)
@@ -41,7 +44,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             {
                 AssignmentDate = assignmentDate,
                 ReturnDate = returnDate,
-                Remarks = remarks
+                Remarks = remarks,
+                Activity = Enums.AssignmentActivity.Active
             };
 
             assignment._accessories.AddRange(accessories);
@@ -55,13 +59,15 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime assignmentDate,
             DateTime? returnDate,
             IEnumerable<Accessory> accessories,
-            string remarks)
+            string remarks,
+            Enums.AssignmentActivity activity)
         {           
             var assignment = new Assignment(id, device, assignedUser)
             {
                 AssignmentDate = assignmentDate,
                 ReturnDate = returnDate,
-                Remarks = remarks
+                Remarks = remarks,
+                Activity = activity
             };
 
             assignment._accessories.AddRange(accessories);

@@ -16,5 +16,7 @@
         public List<Accessory> Accessories { get; set; } = new List<Accessory>();
 
         public DateTime? LastUpdateDate { get; set; }
+
+        public byte IsReturned { get; set; } = 0;
     }
 }

@@ -23,5 +23,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public string Remarks { get; set; } = string.Empty;
 
+        public byte IsReturned { get; set; } = 0;
+
     }
 }

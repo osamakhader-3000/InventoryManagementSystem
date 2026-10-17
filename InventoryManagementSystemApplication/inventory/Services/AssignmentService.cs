@@ -59,6 +59,29 @@ namespace InventoryManagementSystemApplication.inventory.Services
             return UpdateWithTrialLog(assignment, TransactionType.Relocate, agentId);
         }
 
+        public async Task Return(long assignmentId, Guid agentId)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var existingAssignment = await _assignmentRepository.GetById(assignmentId);
+                if (existingAssignment == null)
+                    return;
+
+                if (existingAssignment.Activity == AssignmentActivity.Returned)
+                    throw new AssignmentAlreadyReturnedException(assignmentId);
+
+                await _assignmentRepository.Return(assignmentId, DateTime.UtcNow);
+
+                await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
+
+                // Release only this assignment's share; other assignments may still hold the same accessory
+                foreach (var accessoryId in DistinctAccessoryIds(existingAssignment))
+                    await _accessoryRepository.DecrementAssignedQuantity(accessoryId);
+
+                await AddTrialLog(existingAssignment, TransactionType.Return, agentId);
+            });
+        }
+
         private async Task UpdateWithTrialLog(Assignment assignment, TransactionType transactionType, Guid agentId)
         {
             if (assignment.Id == null)

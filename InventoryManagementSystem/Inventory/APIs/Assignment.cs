@@ -1,5 +1,6 @@
 using InventoryManagementSystemApplication.inventory.Exceptions;
 using InventoryManagementSystemApplication.inventory.Interfaces;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
@@ -17,6 +18,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             assignmentGroup.MapPost("/create", CreateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapPut("/update", UpdateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapPut("/relocate", RelocateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            assignmentGroup.MapPut("/return/{id}", ReturnAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
         private static async Task<IResult> ListAssignments(
@@ -49,14 +51,14 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (agentId == null)
                 return Results.Unauthorized();
 
-            if(dtoAssignment.Device == null)
+            if (dtoAssignment.Device == null)
                 return Results.BadRequest("Device is required");
 
             var device = await deviceService.Get(dtoAssignment.Device.Id);
             if (device == null)
                 return Results.BadRequest("Device not found");
-            
-            if(device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
+
+            if (device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
                 return Results.Conflict("Device is already assigned");
 
             if (dtoAssignment.AssignedUser == null)
@@ -78,7 +80,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             {
                 var outOfStockAccessories = accessories.Where(a => a.AssignedQuantity == a.Quantity).ToList();
                 return Results.Conflict($"Accessories out of stock: {string.Join(", ", outOfStockAccessories)}");
-            }                      
+            }
 
             DomainEntities.Assignment assignment = DomainEntities.Assignment.Create(
                 device,
@@ -102,7 +104,7 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.Conflict(ex.Message);
             }
         }
-             
+
 
         private static async Task<IResult> UpdateAssignment(
             HttpContext http,
@@ -143,6 +145,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (existingAssignment == null)
                 return Results.NotFound();
 
+            if (existingAssignment.Activity == AssignmentActivity.Returned)
+                return Results.Conflict("Assignment is already returned");
+
             DomainEntities.Assignment? assignment = DomainEntities.Assignment.Reconstitute(
                 dtoAssignment.Id,
                 device,
@@ -150,7 +155,8 @@ namespace InventoryManagementSystem.Inventory.APIs
                 existingAssignment.AssignmentDate,
                 null,
                 accessories,
-                dtoAssignment.Remarks);
+                dtoAssignment.Remarks,
+                existingAssignment.Activity);
 
             if (assignment == null)
                 return Results.BadRequest();
@@ -191,6 +197,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (existingAssignment == null)
                 return Results.NotFound();
 
+            if (existingAssignment.Activity == AssignmentActivity.Returned)
+                return Results.Conflict("Assignment is already returned");
+
             DomainEntities.Assignment assignment = DomainEntities.Assignment.Reconstitute(
                 dtoAssignment.Id,
                 existingAssignment.Device,
@@ -198,8 +207,9 @@ namespace InventoryManagementSystem.Inventory.APIs
                 existingAssignment.AssignmentDate,
                 null,
                 existingAssignment.Accessories,
-                dtoAssignment.Remarks);
-                      
+                dtoAssignment.Remarks,
+                existingAssignment.Activity);
+
             await assignmentService.Relocate(assignment, agentId.Value);
             return Results.Ok();
         }
@@ -210,7 +220,29 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Guid.TryParse(userId, out Guid agentId) ? agentId : null;
         }
 
+        private static async Task<IResult> ReturnAssignment(
+            HttpContext http,
+            [FromServices] IAssignmentService assignmentService,
+            long id)
+        {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
 
-             
+            var existingAssignment = await assignmentService.Get(id);
+            if (existingAssignment == null)
+                return Results.NotFound();
+
+            try
+            {
+                await assignmentService.Return(id, agentId.Value);
+                return Results.Ok();
+            }
+            catch (AssignmentAlreadyReturnedException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+        }
+
     }
 }
