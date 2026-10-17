@@ -18,7 +18,8 @@ namespace InventoryManagementSystem.Inventory.APIs
             , int? ta
             , string? sn
             , string? model
-            ,int? status)
+            ,int? status
+            ,Guid? lctnId)
         {
             InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transactionType = null;
             if (ta.HasValue)            
@@ -28,7 +29,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (status.HasValue)
                 deviceStatus = (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)status.Value;
 
-            var trialLogs = await trialLogService.List(userid, depid, eventDate, transactionType, sn, model, deviceStatus);
+            var trialLogs = await trialLogService.List(userid, depid, eventDate, transactionType, sn, model, deviceStatus, lctnId);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.TrialLogMapper.ToDtoList(trialLogs));
         }
     }

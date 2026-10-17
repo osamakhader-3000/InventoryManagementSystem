@@ -7,6 +7,6 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 {
     public interface ITrialLogService
     {
-        public Task<List<TrialLog>> List(Guid? userid, Guid? departmentId, DateTime? eventDate, InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transaction, string? serialNumber, string? model, InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus? status);
+        public Task<List<TrialLog>> List(Guid? userid, Guid? departmentId, DateTime? eventDate, InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transaction, string? serialNumber, string? model, InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus? status, Guid? locationId);
     }
 }
