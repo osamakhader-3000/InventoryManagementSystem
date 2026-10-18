@@ -27,6 +27,7 @@ namespace UsersApplicationPresentation.APIs
             authGroup.MapGet("/currentUser", GetCurrentUser);
             authGroup.MapPut("/verifyEmailToken", VerifyEmailToken).AllowAnonymous();
             authGroup.MapGet("/resendVerificationEmail", ResendVerificationEmail);
+            authGroup.MapPut("/changePassword", ChangePassword);
         }
 
 
@@ -207,7 +208,30 @@ namespace UsersApplicationPresentation.APIs
             return Results.Ok(new { message = "Logged out" });
         }
 
+        private static async Task<Results<Ok, BadRequest<string>, UnauthorizedHttpResult>> ChangePassword(HttpContext context, IUserService usersService, ChangePasswordRequest changePasswordRequest)
+        {
+            string? userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return TypedResults.Unauthorized();
+            }
 
+            if (string.IsNullOrEmpty(changePasswordRequest.OldPassword) || string.IsNullOrEmpty(changePasswordRequest.NewPassword))
+            {
+                return TypedResults.BadRequest("Old password and new password must be provided.");
+            }
+
+            if (changePasswordRequest.OldPassword == changePasswordRequest.NewPassword)
+            {
+                return TypedResults.BadRequest("New password must be different from the old password.");
+            }
+
+            await usersService.ChangePassword(Guid.Parse(userId), changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
+
+
+            return TypedResults.Ok();
+
+        }
 
     }
 }

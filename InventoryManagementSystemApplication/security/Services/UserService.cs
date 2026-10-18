@@ -297,20 +297,18 @@ namespace SecurityApplicationLogic.Services
         {
             SecurityApplicationCore.Models.User? user = await _usersRepository.GetUserWithPasswordByIdAsync(userId);
 
-            if (user is null || user.Password is null)
+            if (user is null || user.Password is null || user.Username is null)
                 throw new Exception("User not found or password not set.");
 
+            SecurityApplicationCore.Models.User userResult = await _userAccountService.VerifyPassword(user.Username, oldPassword);
 
-            bool verified = PasswordHasher.VerifyPassword(oldPassword, user.Password);
 
-            if (!verified)
+            if (userResult is null)
             {
                 throw new Exception("Invalid password.");
             }
 
-            user.UpdatePassword(PasswordHasher.HashPassword(newPassword));
-
-            await _usersRepository.UpdatePassword(user);
+            await _userAccountService.ChangePasswordAsync(userId, oldPassword, newPassword);
 
         }
 

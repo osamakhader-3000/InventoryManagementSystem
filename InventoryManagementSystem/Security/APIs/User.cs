@@ -14,7 +14,7 @@ namespace UsersApplicationPresentation.APIs
             RouteGroupBuilder userGroup = apiGroup.MapGroup("/user");
             userGroup.MapGet("/list", ListUsers).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
             userGroup.MapGet("/Get/{id}", GetUser).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
-            userGroup.MapPut("/changePassword", ChangePassword);
+            
             userGroup.MapPut("/suspend/{id}", SuspendUser).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
             userGroup.MapPut("/activate/{id}", Activate).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
             userGroup.MapPut("/changeRole", ChangeUserRole).RequireAuthorization("VerifiedEmail", "ActiveAccount", "AdminLevel");
@@ -76,30 +76,7 @@ namespace UsersApplicationPresentation.APIs
 
         }
 
-        private static async Task<Results<Ok, BadRequest<string>, UnauthorizedHttpResult>> ChangePassword(HttpContext context, IUserService usersService, ChangePasswordRequest changePasswordRequest)
-        {
-            string? userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return TypedResults.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(changePasswordRequest.OldPassword) || string.IsNullOrEmpty(changePasswordRequest.NewPassword))
-            {
-                return TypedResults.BadRequest("Old password and new password must be provided.");
-            }
-
-            if (changePasswordRequest.OldPassword == changePasswordRequest.NewPassword)
-            {
-                return TypedResults.BadRequest("New password must be different from the old password.");
-            }
-
-            await usersService.ChangePassword(Guid.Parse(userId), changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
-
-
-            return TypedResults.Ok();
-
-        }
+       
 
         public static async Task<Ok<List<SecurityApplicationPresentation.DataTransferObjects.User>>> ListUsers(IUserService usersService)
         {

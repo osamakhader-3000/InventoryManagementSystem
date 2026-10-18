@@ -36,6 +36,20 @@ namespace InventoryManagementSystemDataAccess.Services
             return await _userManager.CheckPasswordAsync(user, password);
         }
 
+        public async Task ChangePasswordAsync(Guid userId, string oldPassword, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                throw new InvalidOperationException("User not found.");
+
+            IdentityResult result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Password change failed: {errors}");
+            }
+        }
+
         public async Task CreateAsync(SecurityApplicationCore.Models.User user)
         {
             var userEntity = user.ToDataAccessModel();
