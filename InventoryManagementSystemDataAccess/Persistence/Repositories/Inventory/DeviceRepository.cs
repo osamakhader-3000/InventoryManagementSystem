@@ -81,15 +81,28 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             var entry = _context.InventoryDevices.Update(device.ToDataAccessModel());
             // Availability is owned by assignments, so device edits must not overwrite it
             entry.Property(x => x.IsTaken).IsModified = false;
+            // Sold state is owned by the sell flow
+            entry.Property(x => x.IsSold).IsModified = false;
             return _context.SaveChangesAsync();
         }
 
-        // Single UPDATE statement so two concurrent assignments can't both take the device; returns false when already taken
+        // Single UPDATE statement so two concurrent assignments can't both take the device; returns false when already taken or sold
         public async Task<bool> MarkTaken(Guid id)
         {
             int affectedRows = await _context.InventoryDevices
-                .Where(x => x.Id == id && x.IsTaken == (byte)Availability.Available)
+                .Where(x => x.Id == id && x.IsTaken == (byte)Availability.Available && x.IsSold == (byte)DeviceSoldState.NotSold)
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsTaken, (byte)Availability.Taken));
+            return affectedRows == 1;
+        }
+
+        // Single UPDATE statement so a device can't be sold twice or sold while assigned; returns false when already sold or taken
+        public async Task<bool> MarkSold(Guid id, decimal soldPrice)
+        {
+            int affectedRows = await _context.InventoryDevices
+                .Where(x => x.Id == id && x.IsSold == (byte)DeviceSoldState.NotSold && x.IsTaken == (byte)Availability.Available)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsSold, (byte)DeviceSoldState.Sold)
+                    .SetProperty(x => x.SoldPrice, soldPrice));
             return affectedRows == 1;
         }
 

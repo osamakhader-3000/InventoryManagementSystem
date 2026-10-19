@@ -15,5 +15,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
         Task Delete(Guid id);
         Task<bool> MarkTaken(Guid id);
         Task MarkAvailable(Guid id);
+        Task<bool> MarkSold(Guid id, decimal soldPrice);
     }
 }

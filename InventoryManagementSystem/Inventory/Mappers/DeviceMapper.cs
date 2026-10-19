@@ -18,7 +18,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 SoldPrice = device.SoldPrice,
                 OperatingSystem = OperatingSystemMapper.ToDto(device.OperatingSystem),
                 Status = (byte)device.Status,
-                IsTaken = (byte)device.IsTaken
+                IsTaken = device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken,
+                IsSold = device.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold
             };
         }
 

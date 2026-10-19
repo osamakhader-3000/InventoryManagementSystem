@@ -66,6 +66,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (device == null)
                 return Results.BadRequest("Device not found");
 
+            if (device.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold)
+                return Results.Conflict("Device is sold");
+
             if (device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
                 return Results.Conflict("Device is already assigned");
 
@@ -103,9 +106,9 @@ namespace InventoryManagementSystem.Inventory.APIs
                 var createdAssignmentId = await assignmentService.Create(assignment, agentId.Value);
                 return Results.Created($"/assignment/Get/{createdAssignmentId}", new { Id = createdAssignmentId });
             }
-            catch (AccessoryOutOfStockException ex)
-            {
-                return Results.Conflict(ex.Message);
+            catch (AccessoryOutOfStockException ex)
+            {
+                return Results.Conflict(ex.Message);
             }
             catch (DeviceUnavailableException ex)
             {
@@ -174,9 +177,9 @@ namespace InventoryManagementSystem.Inventory.APIs
                 await assignmentService.Update(assignment, agentId.Value);
                 return Results.Ok();
             }
-            catch (AccessoryOutOfStockException ex)
-            {
-                return Results.Conflict(ex.Message);
+            catch (AccessoryOutOfStockException ex)
+            {
+                return Results.Conflict(ex.Message);
             }
             catch (DeviceUnavailableException ex)
             {

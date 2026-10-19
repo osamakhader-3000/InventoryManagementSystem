@@ -18,5 +18,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
         public Task Update(Device device);
 
         public Task Delete(Guid deviceId);
+
+        public Task<bool> Sell(Guid deviceId, decimal soldPrice);
     }
 }

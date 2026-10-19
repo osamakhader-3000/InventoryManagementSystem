@@ -20,7 +20,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 device.SoldPrice ?? 0m,
                 device.OperatingSystem.ToDomainModel(),
                 (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)device.Status,
-                (InventoryManagementSystemDomain.modules.inventory.Enums.Availability)device.IsTaken);
+                (InventoryManagementSystemDomain.modules.inventory.Enums.Availability)device.IsTaken,
+                (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState)device.IsSold);
         }
 
         public static Invent.Device ToDataAccessModel(this Domain.Device device)
@@ -37,7 +38,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 SoldPrice = device.SoldPrice,
                 OperatingSystemId = device.OperatingSystem.Id,
                 Status = (byte)device.Status,
-                IsTaken = (byte)device.IsTaken
+                IsTaken = (byte)device.IsTaken,
+                IsSold = (byte)device.IsSold
             };
         }
     }

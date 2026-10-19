@@ -39,5 +39,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             await _deviceRepository.Delete(deviceId);
         }
+        public async Task<bool> Sell(Guid deviceId, decimal soldPrice)
+        {
+            return await _deviceRepository.MarkSold(deviceId, soldPrice);
+        }
     }
 }

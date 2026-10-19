@@ -15,7 +15,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             deviceGroup.MapPost("/create", CreateDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             deviceGroup.MapPut("/update", UpdateDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             deviceGroup.MapDelete("/delete/{id}", DeleteDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
-            deviceGroup.MapPut("/sell/", SellDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            deviceGroup.MapPut("/sell", SellDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
         private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService,string? model, string? sn,string? os,DateTime? purDate)
@@ -96,9 +96,12 @@ namespace InventoryManagementSystem.Inventory.APIs
             var existingDevice = await deviceService.Get(id);
 
             if (existingDevice == null)            
-                return Results.NotFound();           
+                return Results.NotFound();
 
-           
+            if (existingDevice.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold)
+                return Results.Conflict(new { Message = "Device is already sold." });
+
+
             if (existingDevice.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)            
                 return Results.BadRequest(new { Message = "Cannot delete a taken device." });            
             
@@ -107,29 +110,26 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> SellDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
+        private static async Task<IResult> SellDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.SellDeviceRequest sellRequest)
         {
-            var existingDevice = await deviceService.Get(dtoDevice.Id);
+            if (sellRequest.Price < 0)
+                return Results.BadRequest(new { Message = "Sold price cannot be negative." });
 
-            if(existingDevice == null)
-            {
+            var existingDevice = await deviceService.Get(sellRequest.DeviceId);
+
+            if (existingDevice == null)
                 return Results.NotFound();
-            }
 
-            DomainEntities.Device? device = DomainEntities.Device.Reconstitute(
-                existingDevice.Id,
-                existingDevice.Model,
-                existingDevice.SerialNumber,
-                existingDevice.Specs,
-                existingDevice.PurchasedDate,
-                existingDevice.RetirementDate,
-                existingDevice.Price,
-                dtoDevice.SoldPrice,
-                existingDevice.OperatingSystem,
-                (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)dtoDevice.Status);
-            if (device == null)
-                return Results.BadRequest();
-            await deviceService.Update(device);
+            if (existingDevice.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold)
+                return Results.Conflict(new { Message = "Device is already sold." });
+
+            if (existingDevice.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
+                return Results.Conflict(new { Message = "Cannot sell a taken device." });
+
+            // The checks above give specific messages; Sell re-checks atomically in case another request changed the device in between
+            if (!await deviceService.Sell(sellRequest.DeviceId, sellRequest.Price))
+                return Results.Conflict(new { Message = "Device is no longer available for sale." });
+
             return Results.Ok();
         }
 

@@ -13,6 +13,7 @@
         public OperatingSystem OperatingSystem { get; set; } = new OperatingSystem();
 
         public byte Status { get; set; } = 0;
-        public byte IsTaken { get; set; } = 0;
+        public bool IsTaken { get; set; } = false;
+        public bool IsSold { get; set; } = false;
     }
 }
