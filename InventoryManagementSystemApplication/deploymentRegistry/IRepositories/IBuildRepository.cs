@@ -9,7 +9,6 @@ namespace InventoryManagementSystemApplication.deploymentRegistry.IRepositories
         Task Create(Build build);
         Task Update(Build build);
         Task Delete(Guid id);
-        Task<bool> IsAnyRelatedToClient(Guid clientId);
 
         // Read side
         Task<BuildDetails?> GetDetails(Guid id);

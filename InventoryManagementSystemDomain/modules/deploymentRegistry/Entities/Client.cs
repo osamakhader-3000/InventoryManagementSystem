@@ -40,14 +40,5 @@ namespace InventoryManagementSystemDomain.modules.deploymentRegistry.Entities
 
             return Result<ClientError>.Success();
         }
-
-        // Builds own the association, so whether this client is still in use is supplied by the caller
-        public Result<ClientError> EnsureCanBeDeleted(bool isRelatedToBuilds)
-        {
-            if (isRelatedToBuilds)
-                return Result<ClientError>.Failure(ClientError.LinkedToBuilds, "Cannot delete client because it is related to one or more builds.");
-
-            return Result<ClientError>.Success();
-        }
     }
 }

@@ -151,7 +151,7 @@ namespace InventoryManagementSystemDataAccess.Persistence
             modelBuilder.Entity<DeploymentRegistry.Client>().ToTable("deployment_registry_clients");
 
             // Many-to-many: a build is deployed to many clients, a client runs many builds.
-            // Restrict on both sides so neither can be deleted while related to the other.
+            // A build cannot be deleted while related to clients; deleting a client removes it from its builds.
             modelBuilder.Entity<DeploymentRegistry.Build>(b =>
             {
                 b.HasIndex(e => e.Version);
@@ -160,7 +160,7 @@ namespace InventoryManagementSystemDataAccess.Persistence
                     .WithMany(e => e.Builds)
                     .UsingEntity<Dictionary<string, object>>(
                         "deployment_registry_build_clients",
-                        r => r.HasOne<DeploymentRegistry.Client>().WithMany().HasForeignKey("ClientId").OnDelete(DeleteBehavior.Restrict),
+                        r => r.HasOne<DeploymentRegistry.Client>().WithMany().HasForeignKey("ClientId").OnDelete(DeleteBehavior.Cascade),
                         l => l.HasOne<DeploymentRegistry.Build>().WithMany().HasForeignKey("BuildId").OnDelete(DeleteBehavior.Restrict),
                         j => j.HasKey("BuildId", "ClientId"));
             });

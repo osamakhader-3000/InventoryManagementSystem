@@ -66,11 +66,6 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Deploymen
             return _context.SaveChangesAsync();
         }
 
-        public Task<bool> IsAnyRelatedToClient(Guid clientId)
-        {
-            return _context.DeploymentRegistryBuilds.AnyAsync(b => b.Clients.Any(c => c.Id == clientId));
-        }
-
         public Task<BuildDetails?> GetDetails(Guid id)
         {
             return _context.DeploymentRegistryBuilds

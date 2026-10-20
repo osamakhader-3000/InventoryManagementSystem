@@ -3,7 +3,6 @@ namespace InventoryManagementSystemDomain.modules.deploymentRegistry.Enums.Error
     public enum ClientError
     {
         NameRequired,
-        NotFound,
-        LinkedToBuilds
+        NotFound
     }
 }
