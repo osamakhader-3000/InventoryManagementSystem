@@ -23,6 +23,16 @@ namespace SecurityApplicationCore.Configuration
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.ITrialLogService, InventoryManagementSystemApplication.inventory.Services.TrialLogService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IOperatingSystemService, InventoryManagementSystemApplication.inventory.Services.OperatingSystemService>();
 
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.CreateBuild.CreateBuildUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.UpdateBuild.UpdateBuildUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.DeleteBuild.DeleteBuildUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.GetBuild.GetBuildUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.ListBuilds.ListBuildsUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Clients.CreateClient.CreateClientUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Clients.UpdateClient.UpdateClientUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Clients.DeleteClient.DeleteClientUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Clients.GetClient.GetClientUseCase>();
+            services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Clients.ListClients.ListClientsUseCase>();
 
             return services;
         }

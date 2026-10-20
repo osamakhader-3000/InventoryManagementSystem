@@ -193,4 +193,9 @@ InventoryManagementSystem.Inventory.APIs.Assignment.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.OperatingSystem.Map(app, inventoryGroup);
 InventoryManagementSystem.Inventory.APIs.TrialLog.Map(app, inventoryGroup);
 
+var deploymentRegistryGroup = apiGroup.MapGroup("/deploymentregistry");
+
+InventoryManagementSystem.DeploymentRegistry.APIs.Build.Map(app, deploymentRegistryGroup);
+InventoryManagementSystem.DeploymentRegistry.APIs.Client.Map(app, deploymentRegistryGroup);
+
 app.Run();
