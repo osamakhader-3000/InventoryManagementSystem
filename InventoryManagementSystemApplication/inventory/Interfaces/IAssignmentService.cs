@@ -9,7 +9,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
     {
         public Task<long> Create(Assignment assignment, Guid agentId);
 
-        public Task<List<Assignment>> List(Guid? userId, Guid? departmentId, DateTime? purchaseDate, string? model, string? serialNumber, bool? isReturned);
+        public Task<List<Assignment>> List(Guid? userId, Guid? departmentId, Guid? locationId, DateTime? purchaseDate, string? model, string? serialNumber, bool? isReturned);
 
         public Task<Assignment?> Get(long assignmentId);
 

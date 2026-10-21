@@ -25,6 +25,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             [FromServices] IAssignmentService assignmentService,
             Guid? userid,
             Guid? depid,
+            Guid? lctnId,
             DateTime? purDate,
             string? model,
             string? sn,
@@ -35,7 +36,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             if(rtrnd.HasValue)            
                 isReturned = rtrnd.Value != 0;            
 
-            var assignments = await assignmentService.List(userid, depid, purDate, model, sn, isReturned);
+            var assignments = await assignmentService.List(userid, depid,lctnId, purDate, model, sn, isReturned);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.AssignmentMapper.ToDtoList(assignments));
         }
 

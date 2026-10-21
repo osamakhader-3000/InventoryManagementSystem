@@ -66,7 +66,7 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> DeleteUser([FromServices] IUserService userService, [FromServices] IAssignmentService assignmentService, [FromServices] ITrialLogService trialLogService, Guid id)
         {
-            var userAssignments = await assignmentService.List(id, null, null, null, null, null);
+            var userAssignments = await assignmentService.List(id, null, null, null, null, null, null);
             if (userAssignments.Any())
                 return Results.Conflict("Cannot delete user because they have one or more assignments.");
 

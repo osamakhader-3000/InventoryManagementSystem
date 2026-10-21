@@ -73,7 +73,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAssignment.ToDomainModel();
         }
 
-        public async Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, DateTime? purDate, string? model, string? serialNumber, bool? isReturned)
+        public async Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, Guid? locationId, DateTime? purDate, string? model, string? serialNumber, bool? isReturned)
         {
             var query = AssignmentsWithDetails();
 
@@ -82,6 +82,9 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
             if (depId.HasValue)
                 query = query.Where(x => x.AssignedUser.DepartmentId == depId.Value);
+
+            if (locationId.HasValue)
+                query = query.Where(x => x.AssignedUser.LocationId == locationId.Value);
 
             if (purDate.HasValue)
             {
