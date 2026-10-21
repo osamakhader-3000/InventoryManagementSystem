@@ -186,6 +186,10 @@ namespace InventoryManagementSystem.Inventory.APIs
             {
                 return Results.Conflict(ex.Message);
             }
+            catch (AssignmentAlreadyReturnedException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
         }
 
         private static async Task<IResult> RelocateAssignment(
@@ -222,8 +226,15 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoAssignment.Remarks,
                 existingAssignment.Activity);
 
-            await assignmentService.Relocate(assignment, agentId.Value);
-            return Results.Ok();
+            try
+            {
+                await assignmentService.Relocate(assignment, agentId.Value);
+                return Results.Ok();
+            }
+            catch (AssignmentAlreadyReturnedException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
         }
 
         private static Guid? GetAgentId(HttpContext http)

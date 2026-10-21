@@ -67,10 +67,13 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 if (existingAssignment == null)
                     return;
 
+                // Rows returned before returns started deleting still exist; their device and accessories are already released
                 if (existingAssignment.Activity == AssignmentActivity.Returned)
                     throw new AssignmentAlreadyReturnedException(assignmentId);
 
-                await _assignmentRepository.Return(assignmentId, DateTime.UtcNow);
+                // Delete first: a concurrent return of the same assignment gets false here and rolls back before releasing anything twice
+                if (!await _assignmentRepository.Delete(assignmentId))
+                    throw new AssignmentAlreadyReturnedException(assignmentId);
 
                 await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
 
@@ -96,7 +99,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 var existingAccessoryIds = DistinctAccessoryIds(existingAssignment);
                 var newAccessoryIds = DistinctAccessoryIds(assignment);
 
-                await _assignmentRepository.Update(assignment);
+                // Throwing rolls back the whole transaction, so no device or accessory is taken for a returned assignment
+                if (!await _assignmentRepository.Update(assignment))
+                    throw new AssignmentAlreadyReturnedException(assignment.Id.Value);
 
                 if (existingAssignment.Device.Id != assignment.Device.Id)
                 {
@@ -153,19 +158,6 @@ namespace InventoryManagementSystemApplication.inventory.Services
         public async Task<Assignment?> Get(long assignmentId)
         {
             return await _assignmentRepository.GetById(assignmentId);
-        }
-        public async Task Delete(long assignmentId)
-        {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                var existingAssignment = await _assignmentRepository.GetById(assignmentId);
-                if (existingAssignment == null)
-                    return;
-
-                await _assignmentRepository.Delete(assignmentId);
-
-                await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
-            });
         }
 
         public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)

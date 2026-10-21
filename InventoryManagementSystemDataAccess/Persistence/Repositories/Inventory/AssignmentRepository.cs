@@ -52,17 +52,6 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAssignment.Id;
         }
 
-        public async Task Delete(long id)
-        {
-            Invent.Assignment? dbAssignment = await _context.InventoryAssignments.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (dbAssignment == null)
-                return;
-
-            _context.InventoryAssignments.Remove(dbAssignment);
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<Assignment?> GetById(long id)
         {
             Invent.Assignment? dbAssignment = await AssignmentsWithDetails().FirstOrDefaultAsync(x => x.Id == id);
@@ -109,14 +98,15 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
         }
 
-        public async Task Update(Assignment assignment)
+        // Returns false when the assignment no longer exists (e.g. returned, and so deleted, meanwhile)
+        public async Task<bool> Update(Assignment assignment)
         {
             Invent.Assignment? dbAssignment = await _context.InventoryAssignments
                 .Include(x => x.AssignmentAccessories)
                 .FirstOrDefaultAsync(x => x.Id == assignment.Id);
 
             if (dbAssignment == null)
-                return;
+                return false;
 
             dbAssignment.DeviceId = assignment.Device.Id;
             dbAssignment.AssignedUserId = assignment.AssignedUser.Id;
@@ -132,22 +122,21 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             }
 
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task Return(long id, DateTime returnDate)
+        // Accessory links are removed explicitly so this doesn't depend on the database FK cascading.
+        // Returns false when no row was deleted; a concurrent delete of the same row blocks on its lock and then gets false.
+        public async Task<bool> Delete(long id)
         {
-            Invent.Assignment? dbAssignment = await _context.InventoryAssignments
-                .Include(x => x.AssignmentAccessories)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            await _context.InventoryAssignmentAccessories
+                .Where(x => x.AssignmentId == id)
+                .ExecuteDeleteAsync();
 
-            if (dbAssignment == null)
-                return;
-
-            dbAssignment.IsReturned = 1;
-            dbAssignment.ReturnDate = returnDate;
-            dbAssignment.AssignmentAccessories.Clear();
-
-            await _context.SaveChangesAsync();
+            int affectedRows = await _context.InventoryAssignments
+                .Where(x => x.Id == id)
+                .ExecuteDeleteAsync();
+            return affectedRows == 1;
         }
 
         public async Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId)
