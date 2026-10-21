@@ -21,7 +21,6 @@ namespace SecurityApplicationCore.Configuration
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IUserService, InventoryManagementSystemApplication.inventory.Services.UserService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IAssignmentService, InventoryManagementSystemApplication.inventory.Services.AssignmentService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.ITrialLogService, InventoryManagementSystemApplication.inventory.Services.TrialLogService>();
-            services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IOperatingSystemService, InventoryManagementSystemApplication.inventory.Services.OperatingSystemService>();
 
             services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.CreateBuild.CreateBuildUseCase>();
             services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.Features.Builds.UpdateBuild.UpdateBuildUseCase>();

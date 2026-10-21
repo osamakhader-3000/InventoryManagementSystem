@@ -18,9 +18,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             deviceGroup.MapPut("/sell", SellDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService,string? model, string? sn,string? os,DateTime? purDate)
+        private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService,string? model, string? sn,DateTime? purDate)
         {
-            var devices = await deviceService.List(model, sn, os, purDate);
+            var devices = await deviceService.List(model, sn, purDate);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.DeviceMapper.ToDtoList(devices));
         }
 
@@ -32,17 +32,13 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.DeviceMapper.ToDto(device));
         }
 
-        private static async Task<IResult> CreateDevice([FromServices] IDeviceService deviceService, [FromServices] IOperatingSystemService operatingSystemService, [FromBody] Dto.Device dtoDevice)
+        private static async Task<IResult> CreateDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
         {
             DomainEntities.Device? existingDevice = await deviceService.GetBySerialNumber(dtoDevice.SerialNumber);
             if (existingDevice != null)
             {
                 return Results.Conflict(new { Message = "A device with the same serial number already exists." });
             }
-
-            var operatingSystem = await operatingSystemService.Get(dtoDevice.OperatingSystem.Id);
-            if (operatingSystem == null)
-                return Results.BadRequest("Operating system not found");
 
             DomainEntities.Device device = DomainEntities.Device.Create(
                 dtoDevice.Model,
@@ -52,19 +48,14 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.RetirementDate,
                 dtoDevice.Price,
                 dtoDevice.SoldPrice,
-                operatingSystem,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)dtoDevice.Status);
 
             var createdDeviceId = await deviceService.Create(device);
             return Results.Created($"/device/Get/{createdDeviceId}", new { Id = createdDeviceId });
         }
 
-        private static async Task<IResult> UpdateDevice([FromServices] IDeviceService deviceService, [FromServices] IOperatingSystemService operatingSystemService, [FromBody] Dto.Device dtoDevice)
+        private static async Task<IResult> UpdateDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
         {
-            var operatingSystem = await operatingSystemService.Get(dtoDevice.OperatingSystem.Id);
-            if (operatingSystem == null)
-                return Results.BadRequest("Operating system not found");
-
             DomainEntities.Device? existingDevice = await deviceService.GetBySerialNumber(dtoDevice.SerialNumber);
 
             
@@ -83,7 +74,6 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.RetirementDate,
                 dtoDevice.Price,
                 dtoDevice.SoldPrice,
-                operatingSystem,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)dtoDevice.Status);
             if (device == null)
                 return Results.BadRequest();

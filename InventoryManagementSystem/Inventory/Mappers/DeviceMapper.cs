@@ -16,7 +16,6 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 RetirementDate = device.RetirementDate,
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
-                OperatingSystem = OperatingSystemMapper.ToDto(device.OperatingSystem),
                 Status = (byte)device.Status,
                 IsTaken = device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken,
                 IsSold = device.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold

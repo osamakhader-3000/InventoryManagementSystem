@@ -34,7 +34,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<Device?> GetById(Guid id)
         {
-            Invent.Device? dbDevice = await _context.InventoryDevices.AsNoTracking().Include(x => x.OperatingSystem).FirstOrDefaultAsync(x => x.Id == id);
+            Invent.Device? dbDevice = await _context.InventoryDevices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             if (dbDevice == null)
                 return null;
@@ -44,7 +44,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
 
         public async Task<Device?> GetBySerialNumber(string serialNumber)
         {
-            Invent.Device? dbDevice = await _context.InventoryDevices.AsNoTracking().Include(x => x.OperatingSystem).FirstOrDefaultAsync(x => x.SerialNumber == serialNumber);
+            Invent.Device? dbDevice = await _context.InventoryDevices.AsNoTracking().FirstOrDefaultAsync(x => x.SerialNumber == serialNumber);
 
             if (dbDevice == null)
                 return null;
@@ -52,18 +52,15 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbDevice.ToDomainModel();
         }
 
-        public async Task<List<Device>> List(string? model,string? serialNumber,string? operatingSystem,DateTime? purchasedDate)
+        public async Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate)
         {
-            var query = _context.InventoryDevices.Include(x => x.OperatingSystem).AsQueryable();
+            var query = _context.InventoryDevices.AsQueryable();
 
             if (!string.IsNullOrEmpty(model))            
                 query = query.WhereContainsIgnoreCase(x => x.Model, model);            
 
             if (!string.IsNullOrEmpty(serialNumber))            
                 query = query.Where(x => x.SerialNumber == serialNumber);            
-
-            if (!string.IsNullOrEmpty(operatingSystem))            
-                query = query.Where(x => x.OperatingSystem.Name == operatingSystem);            
 
             if (purchasedDate.HasValue)
             {

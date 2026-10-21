@@ -9,7 +9,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
     {
         public Task<Guid> Create(Device device);
 
-        public Task<List<Device>> List(string? model,string? serialNumber,string? operatingSystem,DateTime? purchasedDate);
+        public Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate);
 
         public Task<Device?> Get(Guid deviceId);
 

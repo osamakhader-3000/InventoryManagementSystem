@@ -47,7 +47,6 @@ namespace InventoryManagementSystemDataAccess.Configuration
             services.AddScoped<IDeviceRepository, DeviceRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
-            services.AddScoped<IOperatingSystemRepository, OperatingSystemRepository>();
             services.AddScoped<ITrialLogRepository, TrialLogRepository>();
             services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.IRepositories.IBuildRepository, Persistence.Repositories.DeploymentRegistry.BuildRepository>();
             services.AddScoped<InventoryManagementSystemApplication.deploymentRegistry.IRepositories.IClientRepository, Persistence.Repositories.DeploymentRegistry.ClientRepository>();

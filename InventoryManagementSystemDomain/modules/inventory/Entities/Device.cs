@@ -17,7 +17,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
         public DateTime? RetirementDate { get; private set; }
         public decimal Price { get; private set; }
         public decimal SoldPrice { get; private set; }
-        public OperatingSystem OperatingSystem { get; private set; }
 
         public Enums.DeviceStatus Status { get; private set; } = Enums.DeviceStatus.New;
 
@@ -25,10 +24,9 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public Enums.DeviceSoldState IsSold { get; private set; } = Enums.DeviceSoldState.NotSold;
 
-        private Device(Guid id, OperatingSystem operatingSystem)
+        private Device(Guid id)
         {
             Id = id;
-            OperatingSystem = operatingSystem;
         }
 
         public static Device Create(
@@ -39,10 +37,9 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            OperatingSystem operatingSystem,
             Enums.DeviceStatus status)
         {
-            return new Device(Guid.NewGuid(), operatingSystem)
+            return new Device(Guid.NewGuid())
             {
                 Model = model,
                 SerialNumber = serialNumber,
@@ -65,12 +62,11 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            OperatingSystem operatingSystem,
             Enums.DeviceStatus status,
             Enums.Availability isAvailable = Enums.Availability.Available,
             Enums.DeviceSoldState isSold = Enums.DeviceSoldState.NotSold)
         {
-            return new Device(id, operatingSystem)
+            return new Device(id)
             {
                 Model = model,
                 SerialNumber = serialNumber,

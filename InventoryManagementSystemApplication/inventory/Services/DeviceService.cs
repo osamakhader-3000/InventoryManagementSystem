@@ -19,9 +19,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _deviceRepository.Create(device);
             return device.Id;
         }
-        public async Task<List<Device>> List(string? model,string? serialNumber,string? operatingSystem,DateTime? purchasedDate)
+        public async Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate)
         {
-            return await _deviceRepository.List(model, serialNumber, operatingSystem, purchasedDate);
+            return await _deviceRepository.List(model, serialNumber, purchasedDate);
         }
         public async Task<Device?> Get(Guid deviceId)
         {

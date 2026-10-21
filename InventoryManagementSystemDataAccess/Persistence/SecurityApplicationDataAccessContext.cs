@@ -31,8 +31,6 @@ namespace InventoryManagementSystemDataAccess.Persistence
 
         internal virtual DbSet<Inventory.AssignmentAccessory> InventoryAssignmentAccessories { get; set; }
 
-        internal virtual DbSet<Inventory.OperatingSystem> InventoryOperatingSystems { get; set; }
-
         internal virtual DbSet<DeploymentRegistry.Build> DeploymentRegistryBuilds { get; set; }
 
         internal virtual DbSet<DeploymentRegistry.Client> DeploymentRegistryClients { get; set; }
@@ -66,7 +64,6 @@ namespace InventoryManagementSystemDataAccess.Persistence
             modelBuilder.Entity<Inventory.Assignment>().ToTable("inventory_assignments");
             modelBuilder.Entity<Inventory.TrialLog>().ToTable("inventory_trial_logs");
             modelBuilder.Entity<Inventory.AssignmentAccessory>().ToTable("inventory_assignment_accessories");
-            modelBuilder.Entity<Inventory.OperatingSystem>().ToTable("inventory_operating_systems");
 
             modelBuilder.Entity<Inventory.Device>(b =>
             {
@@ -74,12 +71,6 @@ namespace InventoryManagementSystemDataAccess.Persistence
                 b.Property(e => e.SoldPrice).HasPrecision(12, 2);
 
                 b.HasIndex(e => e.SerialNumber).IsUnique();
-
-                // Many-to-one: a device has one operating system, an operating system has many devices
-                b.HasOne(e => e.OperatingSystem)
-                    .WithMany(e => e.Devices)
-                    .HasForeignKey(e => e.OperatingSystemId)
-                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Many-to-one: a user has one department, a department has many users

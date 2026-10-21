@@ -18,7 +18,6 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 device.RetirementDate,
                 device.Price,
                 device.SoldPrice ?? 0m,
-                device.OperatingSystem.ToDomainModel(),
                 (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceStatus)device.Status,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.Availability)device.IsTaken,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState)device.IsSold);
@@ -36,7 +35,6 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 RetirementDate = device.RetirementDate,
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
-                OperatingSystemId = device.OperatingSystem.Id,
                 Status = (byte)device.Status,
                 IsTaken = (byte)device.IsTaken,
                 IsSold = (byte)device.IsSold

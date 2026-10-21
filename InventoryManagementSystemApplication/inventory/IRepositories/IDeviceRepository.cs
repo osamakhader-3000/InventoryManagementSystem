@@ -10,7 +10,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
         Task Create(Device device);
         Task<Device?> GetById(Guid id);
         Task<Device?> GetBySerialNumber(string serialNumber);
-        Task<List<Device>> List(string? model,string? serialNumber,string? operatingSystem,DateTime? purchasedDate);
+        Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate);
         Task Update(Device device);
         Task Delete(Guid id);
         Task<bool> MarkTaken(Guid id);
