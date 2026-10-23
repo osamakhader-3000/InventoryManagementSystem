@@ -15,6 +15,6 @@ namespace InventoryManagementSystem.Inventory.DataTransferObject
 
         public string LocationName { get; set; } = string.Empty;
 
-        public byte Status { get; set; } = 0;
+        public string Status { get; set; } = string.Empty;
     }
 }

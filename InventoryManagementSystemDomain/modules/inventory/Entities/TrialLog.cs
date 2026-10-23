@@ -29,7 +29,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public string? LocationName { get; private set; }
 
-        public DeviceStatus? Status { get; private set; }
+        public string? Status { get; private set; }
 
         private TrialLog(long? id)
         {
@@ -60,7 +60,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             string? userName,
             string? agentName,
             string? locationName,
-            DeviceStatus? status)
+            string? status)
         {
             return new TrialLog(id)
             {

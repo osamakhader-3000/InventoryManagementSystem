@@ -22,7 +22,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 trialLog.User?.Name,
                 trialLog.Agent?.UserName,
                 trialLog.User?.Location?.Name,
-                (DomainEnums.DeviceStatus?)trialLog.Device?.Status);
+                trialLog.Device?.Status);
         }
     }
 }

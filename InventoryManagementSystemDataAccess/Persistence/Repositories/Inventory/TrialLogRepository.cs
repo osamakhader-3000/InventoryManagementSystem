@@ -34,7 +34,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return _context.SaveChangesAsync();
         }
 
-        public async Task<List<TrialLog>> ListAll(Guid? userId, Guid? departmentId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, Enums.DeviceStatus? status, Guid? locationId)
+        public async Task<List<TrialLog>> ListAll(Guid? userId, Guid? departmentId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, Guid? locationId)
         {
             IQueryable<Invent.TrialLog> query = _context.InventoryTrialLogs
                 .Include(x => x.Device)
@@ -69,11 +69,8 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             if (!string.IsNullOrEmpty(model))
                 query = query.WhereContainsIgnoreCase(x => x.Device.Model, model);
 
-            if (status.HasValue)
-            {
-                byte deviceStatus = (byte)status.Value;
-                query = query.Where(x => x.Device.Status == deviceStatus);
-            }
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(x => x.Device.Status == status);
 
             var dbTrialLogs = await query
                 .OrderByDescending(x => x.EventDate)

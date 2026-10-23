@@ -19,7 +19,7 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 AgentId = trialLog.AgentId,
                 AgentName = trialLog.AgentName ?? string.Empty,
                 LocationName = trialLog.LocationName ?? string.Empty,
-                Status = (byte)(trialLog.Status ?? 0)
+                Status = trialLog.Status ?? string.Empty
             };
         }
 

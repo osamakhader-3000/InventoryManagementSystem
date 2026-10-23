@@ -18,7 +18,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
         public decimal Price { get; private set; }
         public decimal SoldPrice { get; private set; }
 
-        public Enums.DeviceStatus Status { get; private set; } = Enums.DeviceStatus.New;
+        public string Status { get; private set; } = string.Empty;
 
         public Enums.Availability IsTaken { get; private set; } = Enums.Availability.Taken;
 
@@ -37,7 +37,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            Enums.DeviceStatus status)
+            string status)
         {
             return new Device(Guid.NewGuid())
             {
@@ -62,7 +62,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             DateTime? retirementDate,
             decimal price,
             decimal soldPrice,
-            Enums.DeviceStatus status,
+            string status,
             Enums.Availability isAvailable = Enums.Availability.Available,
             Enums.DeviceSoldState isSold = Enums.DeviceSoldState.NotSold)
         {

@@ -16,7 +16,7 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 RetirementDate = device.RetirementDate,
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
-                Status = (byte)device.Status,
+                Status = device.Status,
                 IsTaken = device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken,
                 IsSold = device.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold
             };

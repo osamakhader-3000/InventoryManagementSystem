@@ -11,7 +11,7 @@
         public decimal Price { get; set; } = 0m;
         public decimal SoldPrice { get; set; } = 0m;
 
-        public byte Status { get; set; } = 0;
+        public string Status { get; set; } = string.Empty;
         public bool IsTaken { get; set; } = false;
         public bool IsSold { get; set; } = false;
     }

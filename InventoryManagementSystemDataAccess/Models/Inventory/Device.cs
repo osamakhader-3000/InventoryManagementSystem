@@ -21,7 +21,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public decimal? SoldPrice { get; set; }
 
-        public byte Status { get; set; }
+        public string? Status { get; set; }
 
         public byte IsTaken { get; set; }
 

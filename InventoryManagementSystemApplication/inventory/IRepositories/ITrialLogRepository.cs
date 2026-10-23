@@ -9,6 +9,6 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     public interface ITrialLogRepository
     {
         Task Create(TrialLog trialLog);
-        Task<List<TrialLog>> ListAll(Guid? userId, Guid? departmentId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, Enums.DeviceStatus? status, Guid? locationId);
+        Task<List<TrialLog>> ListAll(Guid? userId, Guid? departmentId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, Guid? locationId);
     }
 }
