@@ -49,16 +49,6 @@ namespace InventoryManagementSystemApplication.inventory.Services
             return createdAssignmentId;
         }
 
-        public Task Update(Assignment assignment, Guid agentId)
-        {
-            return UpdateWithTrialLog(assignment, TransactionType.Update, agentId);
-        }
-
-        public Task Relocate(Assignment assignment, Guid agentId)
-        {
-            return UpdateWithTrialLog(assignment, TransactionType.Relocate, agentId);
-        }
-
         public async Task Return(long assignmentId, Guid agentId)
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -82,40 +72,6 @@ namespace InventoryManagementSystemApplication.inventory.Services
                     await _accessoryRepository.DecrementAssignedQuantity(accessoryId);
 
                 await AddTrialLog(existingAssignment, TransactionType.Return, agentId);
-            });
-        }
-
-        private async Task UpdateWithTrialLog(Assignment assignment, TransactionType transactionType, Guid agentId)
-        {
-            if (assignment.Id == null)
-                throw new ArgumentException("Assignment id is required", nameof(assignment));
-
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                var existingAssignment = await _assignmentRepository.GetById(assignment.Id.Value);
-                if (existingAssignment == null)
-                    return;
-
-                var existingAccessoryIds = DistinctAccessoryIds(existingAssignment);
-                var newAccessoryIds = DistinctAccessoryIds(assignment);
-
-                // Throwing rolls back the whole transaction, so no device or accessory is taken for a returned assignment
-                if (!await _assignmentRepository.Update(assignment))
-                    throw new AssignmentAlreadyReturnedException(assignment.Id.Value);
-
-                if (existingAssignment.Device.Id != assignment.Device.Id)
-                {
-                    await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
-                    await TakeDevice(assignment.Device.Id);
-                }
-
-                await IncrementAssignedQuantities(newAccessoryIds.Except(existingAccessoryIds));
-
-                // Already at 0 means the count was out of sync; nothing to release, so the result is ignored
-                foreach (var accessoryId in existingAccessoryIds.Except(newAccessoryIds))
-                    await _accessoryRepository.DecrementAssignedQuantity(accessoryId);
-
-                await AddTrialLog(assignment, transactionType, agentId);
             });
         }
 

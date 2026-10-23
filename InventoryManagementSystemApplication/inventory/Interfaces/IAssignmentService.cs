@@ -13,10 +13,6 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 
         public Task<Assignment?> Get(long assignmentId);
 
-        public Task Update(Assignment assignment, Guid agentId);
-
-        public Task Relocate(Assignment assignment, Guid agentId);
-
         public Task Return(long assignmentId, Guid agentId);
 
         Task<IEnumerable<Assignment>> ListByAccessoryId(Guid accessoryId);

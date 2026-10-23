@@ -98,33 +98,6 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
         }
 
-        // Returns false when the assignment no longer exists (e.g. returned, and so deleted, meanwhile)
-        public async Task<bool> Update(Assignment assignment)
-        {
-            Invent.Assignment? dbAssignment = await _context.InventoryAssignments
-                .Include(x => x.AssignmentAccessories)
-                .FirstOrDefaultAsync(x => x.Id == assignment.Id);
-
-            if (dbAssignment == null)
-                return false;
-
-            dbAssignment.DeviceId = assignment.Device.Id;
-            dbAssignment.AssignedUserId = assignment.AssignedUser.Id;
-            dbAssignment.AssignmentDate = assignment.AssignmentDate;
-            dbAssignment.ReturnDate = assignment.ReturnDate;
-            dbAssignment.Remarks = assignment.Remarks;
-
-            var accessoryIds = await LoadAccessoryIds(assignment);
-            dbAssignment.AssignmentAccessories.RemoveAll(x => !accessoryIds.Contains(x.AccessoryId));
-            foreach (var accessoryId in accessoryIds.Where(id => !dbAssignment.AssignmentAccessories.Any(x => x.AccessoryId == id)))
-            {
-                dbAssignment.AssignmentAccessories.Add(new Invent.AssignmentAccessory { AccessoryId = accessoryId });
-            }
-
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
         // Accessory links are removed explicitly so this doesn't depend on the database FK cascading.
         // Returns false when no row was deleted; a concurrent delete of the same row blocks on its lock and then gets false.
         public async Task<bool> Delete(long id)

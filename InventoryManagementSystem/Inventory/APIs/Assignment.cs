@@ -1,6 +1,5 @@
 using InventoryManagementSystemApplication.inventory.Exceptions;
 using InventoryManagementSystemApplication.inventory.Interfaces;
-using InventoryManagementSystemDomain.modules.inventory.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
@@ -16,8 +15,6 @@ namespace InventoryManagementSystem.Inventory.APIs
             assignmentGroup.MapGet("/list", ListAssignments).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapGet("/Get/{id}", GetAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapPost("/create", CreateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
-            assignmentGroup.MapPut("/update", UpdateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
-            assignmentGroup.MapPut("/relocate", RelocateAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             assignmentGroup.MapPut("/return/{id}", ReturnAssignment).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
@@ -112,126 +109,6 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.Conflict(ex.Message);
             }
             catch (DeviceUnavailableException ex)
-            {
-                return Results.Conflict(ex.Message);
-            }
-        }
-
-
-        private static async Task<IResult> UpdateAssignment(
-            HttpContext http,
-            [FromServices] IAssignmentService assignmentService,
-            [FromServices] IDeviceService deviceService,
-            [FromServices] IUserService userService,
-            [FromServices] IAccessoryService accessoryService,
-            [FromBody] Dto.Assignment dtoAssignment)
-        {
-            Guid? agentId = GetAgentId(http);
-            if (agentId == null)
-                return Results.Unauthorized();
-
-            if (dtoAssignment.Device == null)
-                return Results.BadRequest("Device is required");
-
-            var device = await deviceService.Get(dtoAssignment.Device.Id);
-            if (device == null)
-                return Results.BadRequest("Device not found");
-
-            if (dtoAssignment.AssignedUser == null)
-                return Results.BadRequest("Assigned user is required");
-
-            var assignedUser = await userService.Get(dtoAssignment.AssignedUser.Id);
-            if (assignedUser == null)
-                return Results.BadRequest("User not found");
-
-            var accessories = await accessoryService.ListByIds(dtoAssignment.Accessories.Select(a => a.Id).ToList());
-            if (accessories == null)
-                return Results.BadRequest("Accessory not found");
-
-            var missingAccessoryIds = dtoAssignment.Accessories.Select(a => a.Id).Except(accessories.Select(a => a.Id)).ToList();
-            if (missingAccessoryIds.Any())
-                return Results.BadRequest($"Accessories not found: {string.Join(", ", missingAccessoryIds)}");
-
-            var existingAssignment = await assignmentService.Get(dtoAssignment.Id);
-
-            if (existingAssignment == null)
-                return Results.NotFound();
-
-            if (existingAssignment.Activity == AssignmentActivity.Returned)
-                return Results.Conflict("Assignment is already returned");
-
-            DomainEntities.Assignment? assignment = DomainEntities.Assignment.Reconstitute(
-                dtoAssignment.Id,
-                device,
-                assignedUser,
-                existingAssignment.AssignmentDate,
-                null,
-                accessories,
-                dtoAssignment.Remarks,
-                existingAssignment.Activity);
-
-            if (assignment == null)
-                return Results.BadRequest();
-
-            try
-            {
-                await assignmentService.Update(assignment, agentId.Value);
-                return Results.Ok();
-            }
-            catch (AccessoryOutOfStockException ex)
-            {
-                return Results.Conflict(ex.Message);
-            }
-            catch (DeviceUnavailableException ex)
-            {
-                return Results.Conflict(ex.Message);
-            }
-            catch (AssignmentAlreadyReturnedException ex)
-            {
-                return Results.Conflict(ex.Message);
-            }
-        }
-
-        private static async Task<IResult> RelocateAssignment(
-            HttpContext http,
-            [FromServices] IAssignmentService assignmentService,
-            [FromServices] IUserService userService,
-            [FromBody] Dto.Assignment dtoAssignment)
-        {
-            Guid? agentId = GetAgentId(http);
-            if (agentId == null)
-                return Results.Unauthorized();
-
-            if (dtoAssignment.AssignedUser == null)
-                return Results.BadRequest("Assigned user is required");
-
-            var assignedUser = await userService.Get(dtoAssignment.AssignedUser.Id);
-            if (assignedUser == null)
-                return Results.BadRequest("User not found");
-
-            var existingAssignment = await assignmentService.Get(dtoAssignment.Id);
-            if (existingAssignment == null)
-                return Results.NotFound();
-
-            if (existingAssignment.Activity == AssignmentActivity.Returned)
-                return Results.Conflict("Assignment is already returned");
-
-            DomainEntities.Assignment assignment = DomainEntities.Assignment.Reconstitute(
-                dtoAssignment.Id,
-                existingAssignment.Device,
-                assignedUser,
-                existingAssignment.AssignmentDate,
-                null,
-                existingAssignment.Accessories,
-                dtoAssignment.Remarks,
-                existingAssignment.Activity);
-
-            try
-            {
-                await assignmentService.Relocate(assignment, agentId.Value);
-                return Results.Ok();
-            }
-            catch (AssignmentAlreadyReturnedException ex)
             {
                 return Results.Conflict(ex.Message);
             }
