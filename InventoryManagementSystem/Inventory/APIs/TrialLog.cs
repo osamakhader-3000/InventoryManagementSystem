@@ -9,6 +9,13 @@ namespace InventoryManagementSystem.Inventory.APIs
         {
             RouteGroupBuilder trialLogGroup = apiGroup.MapGroup("/triallog");
             trialLogGroup.MapGet("/list", ListTrialLogs).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            trialLogGroup.MapGet("/agents", ListAgents).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+        }
+
+        private static async Task<IResult> ListAgents([FromServices] ITrialLogService trialLogService)
+        {
+            var agents = await trialLogService.ListAgents();
+            return Results.Ok(InventoryManagementSystem.Inventory.Mappers.TrialLogMapper.ToDtoList(agents));
         }
 
         private static async Task<IResult> ListTrialLogs([FromServices] ITrialLogService trialLogService

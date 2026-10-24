@@ -1,4 +1,5 @@
 using InventoryManagementSystemApplication.inventory.Interfaces;
+using InventoryManagementSystemApplication.inventory.ReadModels;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using System;
@@ -17,6 +18,11 @@ namespace InventoryManagementSystemApplication.inventory.Services
         public async Task<List<TrialLog>> List(Guid? userid, DateTime? eventDate, InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId)
         {
             return await _trialLogRepository.ListAll(userid, eventDate, transaction, serialNumber, model, status, location, agentId);
+        }
+
+        public async Task<List<TrialLogAgent>> ListAgents()
+        {
+            return await _trialLogRepository.ListAgents();
         }
     }
 }

@@ -27,5 +27,14 @@ namespace InventoryManagementSystem.Inventory.Mappers
         {
             return trialLogs.Select(ToDto).ToList();
         }
+
+        public static List<Dto.TrialLogAgent> ToDtoList(IEnumerable<InventoryManagementSystemApplication.inventory.ReadModels.TrialLogAgent> agents)
+        {
+            return agents.Select(x => new Dto.TrialLogAgent
+            {
+                AgentId = x.AgentId,
+                AgentName = x.AgentName ?? string.Empty
+            }).ToList();
+        }
     }
 }

@@ -1,3 +1,4 @@
+using InventoryManagementSystemApplication.inventory.ReadModels;
 using InventoryManagementSystemDataAccess.Mappers.Inventory;
 using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
@@ -95,6 +96,27 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 .OrderByDescending(x => x.EventDate)
                 .ToListAsync();
             return dbTrialLogs.ToDomainModelList(x => x.ToDomainModel());
+        }
+
+        // One row per agent with the name from their latest log, so a renamed agent appears once
+        public async Task<List<TrialLogAgent>> ListAgents()
+        {
+            var agents = await _context.InventoryTrialLogs
+                .Where(x => x.AgentId != null)
+                .GroupBy(x => x.AgentId!.Value)
+                .Select(g => new
+                {
+                    AgentId = g.Key,
+                    AgentName = g
+                        .Where(x => x.AgentName != null)
+                        .OrderByDescending(x => x.EventDate)
+                        .Select(x => x.AgentName)
+                        .FirstOrDefault()
+                })
+                .OrderBy(x => x.AgentName)
+                .ToListAsync();
+
+            return agents.Select(x => new TrialLogAgent(x.AgentId, x.AgentName)).ToList();
         }
     }
 }
