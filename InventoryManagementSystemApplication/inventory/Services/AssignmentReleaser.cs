@@ -54,6 +54,7 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 await _accessoryRepository.DecrementAssignedQuantity(accessory.Id);
                 await _trialLogRepository.Create(TrialLog.CreateForAccessory(
                     accessory.Name,
+                    assignment.AssignedUser.Id,
                     DateTime.UtcNow,
                     TransactionType.Return,
                     agentId));

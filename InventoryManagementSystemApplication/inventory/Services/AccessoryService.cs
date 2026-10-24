@@ -74,6 +74,7 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             return _trialLogRepository.Create(TrialLog.CreateForAccessory(
                 accessoryName,
+                null,
                 DateTime.UtcNow,
                 transactionType,
                 agentId));

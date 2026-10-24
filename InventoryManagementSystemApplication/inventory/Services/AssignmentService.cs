@@ -99,6 +99,7 @@ namespace InventoryManagementSystemApplication.inventory.Services
             foreach (var accessory in assignment.Accessories.DistinctBy(x => x.Id))
                 await _trialLogRepository.Create(TrialLog.CreateForAccessory(
                     accessory.Name,
+                    assignment.AssignedUser.Id,
                     DateTime.UtcNow,
                     transactionType,
                     agentId));
