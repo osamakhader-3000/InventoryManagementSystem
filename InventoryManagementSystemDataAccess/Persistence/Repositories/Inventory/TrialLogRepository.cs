@@ -63,9 +63,12 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<TrialLog>> ListAll(Guid? userId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId)
+        public async Task<List<TrialLog>> ListAll(Guid? userId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId, Enums.LogEntityType? entityType)
         {
             IQueryable<Invent.TrialLog> query = _context.InventoryTrialLogs;
+
+            if (entityType.HasValue)
+                query = query.Where(x => x.EntityType == (byte)entityType.Value);
 
             if (userId.HasValue)
                 query = query.Where(x => x.UserId == userId.Value);

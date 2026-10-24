@@ -26,13 +26,17 @@ namespace InventoryManagementSystem.Inventory.APIs
             , string? model
             ,string? status
             ,string? lctn
-            ,Guid? agentId)
+            ,Guid? agentId
+            , byte? entyTpe
+        )
         {
             InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transactionType = null;
             if (ta.HasValue)            
                 transactionType = (InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType)ta.Value;
 
-            var trialLogs = await trialLogService.List(userid, eventDate, transactionType, sn, model, status, lctn, agentId);
+            InventoryManagementSystemDomain.modules.inventory.Enums.LogEntityType? entityType = entyTpe.HasValue ? (InventoryManagementSystemDomain.modules.inventory.Enums.LogEntityType)entyTpe.Value : null;
+
+            var trialLogs = await trialLogService.List(userid, eventDate, transactionType, sn, model, status, lctn, agentId, entityType);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.TrialLogMapper.ToDtoList(trialLogs));
         }
     }

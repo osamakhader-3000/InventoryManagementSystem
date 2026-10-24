@@ -10,7 +10,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     public interface ITrialLogRepository
     {
         Task Create(TrialLog trialLog);
-        Task<List<TrialLog>> ListAll(Guid? userId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId);
+        Task<List<TrialLog>> ListAll(Guid? userId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId, Enums.LogEntityType? entityType);
         Task<List<TrialLogAgent>> ListAgents();
     }
 }
