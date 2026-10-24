@@ -9,7 +9,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
     {
         public long? Id { get; private set; }
 
-        public Guid DeviceId { get; private set; }
+        // Null for user events, which have no device
+        public Guid? DeviceId { get; private set; }
 
         // Null for device events, which have no inventory user
         public Guid? UserId { get; private set; }
@@ -37,7 +38,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             Id = id;
         }
 
-        public static TrialLog Create(Guid deviceId, Guid? userId, DateTime eventDate, TransactionType transactionType, Guid agentId)
+        public static TrialLog Create(Guid? deviceId, Guid? userId, DateTime eventDate, TransactionType transactionType, Guid agentId)
         {
             return new TrialLog(null)
             {
@@ -51,7 +52,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public static TrialLog Reconstitute(
             long id,
-            Guid deviceId,
+            Guid? deviceId,
             Guid? userId,
             DateTime eventDate,
             TransactionType transactionType,

@@ -12,7 +12,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
         {
             return Domain.TrialLog.Reconstitute(
                 trialLog.Id,
-                trialLog.DeviceId.GetValueOrDefault(),
+                trialLog.DeviceId,
                 trialLog.UserId,
                 trialLog.EventDate.GetValueOrDefault(),
                 (DomainEnums.TransactionType)trialLog.TransactionTypeId.GetValueOrDefault(),

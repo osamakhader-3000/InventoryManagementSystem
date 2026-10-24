@@ -40,8 +40,12 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.UserMapper.ToDto(user));
         }
 
-        private static async Task<IResult> CreateUser([FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromServices] ILocationService locationService, [FromBody] Dto.User dtoUser)
+        private static async Task<IResult> CreateUser(HttpContext http, [FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromServices] ILocationService locationService, [FromBody] Dto.User dtoUser)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             var department = await departmentService.Get(dtoUser.Department.Id);
             if (department == null)
                 return Results.BadRequest("Department not found");
@@ -52,12 +56,20 @@ namespace InventoryManagementSystem.Inventory.APIs
 
             DomainEntities.User user = DomainEntities.User.Create(dtoUser.Name, department, location);
 
-            var createdUserId = await userService.Create(user);
+            var createdUserId = await userService.Create(user, agentId.Value);
             return Results.Created($"/user/Get/{createdUserId}", new { Id = createdUserId });
         }
 
-        private static async Task<IResult> UpdateUser([FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromServices] ILocationService locationService, [FromBody] Dto.User dtoUser)
+        private static async Task<IResult> UpdateUser(HttpContext http, [FromServices] IUserService userService, [FromServices] IDepartmentService departmentService, [FromServices] ILocationService locationService, [FromBody] Dto.User dtoUser)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
+            // Without this an unknown id would update nothing yet still log an update
+            if (await userService.Get(dtoUser.Id) == null)
+                return Results.NotFound();
+
             var department = await departmentService.Get(dtoUser.Department.Id);
             if (department == null)
                 return Results.BadRequest("Department not found");
@@ -69,7 +81,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             DomainEntities.User? user = DomainEntities.User.Reconstitute(dtoUser.Id, dtoUser.Name, department, location);
             if (user == null)
                 return Results.BadRequest();
-            await userService.Update(user);
+            await userService.Update(user, agentId.Value);
             return Results.Ok();
         }
 
@@ -98,15 +110,19 @@ namespace InventoryManagementSystem.Inventory.APIs
             }
         }
 
-        private static async Task<IResult> UnsuspendUser([FromServices] IUserService userService, Guid id)
+        private static async Task<IResult> UnsuspendUser(HttpContext http, [FromServices] IUserService userService, Guid id)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             var user = await userService.Get(id);
             if (user == null)
                 return Results.NotFound();
 
             try
             {
-                await userService.Unsuspend(id);
+                await userService.Unsuspend(id, agentId.Value);
                 return Results.NoContent();
             }
             catch (UserNotSuspendedException ex)
