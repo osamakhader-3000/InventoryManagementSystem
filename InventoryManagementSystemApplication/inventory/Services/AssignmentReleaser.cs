@@ -46,7 +46,8 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 assignment.AssignedUser.Id,
                 DateTime.UtcNow,
                 TransactionType.Return,
-                agentId));
+                agentId,
+                LogEntityType.Assignment));
 
             // Release only this assignment's share; other assignments may still hold the same accessory
             foreach (var accessory in assignment.Accessories.DistinctBy(x => x.Id))

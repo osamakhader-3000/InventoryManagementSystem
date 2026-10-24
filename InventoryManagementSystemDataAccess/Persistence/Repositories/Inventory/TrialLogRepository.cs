@@ -55,7 +55,8 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 UserName = user?.Name,
                 LocationId = user?.LocationId,
                 Location = user?.LocationName,
-                AgentName = agentName
+                AgentName = agentName,
+                EntityType = (byte)trialLog.EntityType
             };
 
             _context.InventoryTrialLogs.Add(dbTrialLog);

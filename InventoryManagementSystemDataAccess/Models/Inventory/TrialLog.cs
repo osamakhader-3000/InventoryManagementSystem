@@ -33,5 +33,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
         public string? Location { get; set; }
 
         public string? Status { get; set; }
+
+        public byte EntityType { get; set; } = 0;
     }
 }

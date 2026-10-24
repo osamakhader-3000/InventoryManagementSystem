@@ -22,7 +22,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 trialLog.UserName,
                 trialLog.AgentName,
                 trialLog.Location,
-                trialLog.Status);
+                trialLog.Status,
+                (DomainEnums.LogEntityType)trialLog.EntityType);
         }
     }
 }

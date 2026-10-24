@@ -33,12 +33,14 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public string? Status { get; private set; }
 
+        public LogEntityType EntityType { get; private set; }
+
         private TrialLog(long? id)
         {
             Id = id;
         }
 
-        public static TrialLog Create(Guid? deviceId, Guid? userId, DateTime eventDate, TransactionType transactionType, Guid agentId)
+        public static TrialLog Create(Guid? deviceId, Guid? userId, DateTime eventDate, TransactionType transactionType, Guid agentId, LogEntityType entityType)
         {
             return new TrialLog(null)
             {
@@ -46,7 +48,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 UserId = userId,
                 EventDate = eventDate,
                 TransactionType = transactionType,
-                AgentId = agentId
+                AgentId = agentId,
+                EntityType = entityType
             };
         }
 
@@ -59,7 +62,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 EventDate = eventDate,
                 TransactionType = transactionType,
                 AgentId = agentId,
-                DeviceModel = accessoryName
+                DeviceModel = accessoryName,
+                EntityType = LogEntityType.Accessory
             };
         }
 
@@ -75,7 +79,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             string? userName,
             string? agentName,
             string? locationName,
-            string? status)
+            string? status,
+            LogEntityType entityType)
         {
             return new TrialLog(id)
             {
@@ -89,7 +94,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 UserName = userName,
                 AgentName = agentName,
                 LocationName = locationName,
-                Status = status
+                Status = status,
+                EntityType = entityType
             };
         }
     }

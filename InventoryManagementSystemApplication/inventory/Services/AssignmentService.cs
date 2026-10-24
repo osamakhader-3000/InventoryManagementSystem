@@ -90,7 +90,8 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 assignment.AssignedUser.Id,
                 DateTime.UtcNow,
                 transactionType,
-                agentId));
+                agentId,
+                LogEntityType.Assignment));
         }
 
         // One log per accessory, matching the single unit of stock each one takes

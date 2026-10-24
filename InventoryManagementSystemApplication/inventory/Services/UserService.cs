@@ -89,7 +89,8 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 userId,
                 DateTime.UtcNow,
                 transactionType,
-                agentId));
+                agentId,
+                LogEntityType.User));
         }
     }
 }

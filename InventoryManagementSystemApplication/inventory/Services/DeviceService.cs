@@ -84,7 +84,8 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 null,
                 DateTime.UtcNow,
                 transactionType,
-                agentId));
+                agentId,
+                LogEntityType.Device));
         }
     }
 }
