@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
     {
         public Task<Guid> Create(User user);
 
-        public Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId);
+        public Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId, UserSuspensionState? status);
 
         public Task<User?> Get(Guid userId);
 

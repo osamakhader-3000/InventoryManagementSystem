@@ -61,7 +61,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbUser.ToDomainModel();
         }
 
-        public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId)
+        public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId, UserSuspensionState? status)
         {
             var query = UsersWithDepartment();
 
@@ -78,6 +78,11 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             if (locationId.HasValue)
             {
                 query = query.Where(x => x.LocationId == locationId.Value);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(x => x.IsSuspended == (byte)status.Value);
             }
 
             var dbUsers = await query.ToListAsync();

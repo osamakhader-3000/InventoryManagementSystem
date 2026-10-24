@@ -1,9 +1,10 @@
 using InventoryManagementSystemApplication.inventory.Exceptions;
 using InventoryManagementSystemApplication.inventory.Interfaces;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 using DomainEntities = InventoryManagementSystemDomain.modules.inventory.Entities;
+using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 
 namespace InventoryManagementSystem.Inventory.APIs
 {
@@ -20,9 +21,14 @@ namespace InventoryManagementSystem.Inventory.APIs
             userGroup.MapPut("/unsuspend/{id}", UnsuspendUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListUsers([FromServices] IUserService userService,string? name,Guid? dptId,Guid? locId)
+        private static async Task<IResult> ListUsers([FromServices] IUserService userService,string? name,Guid? dptId,Guid? locId,int? stus)
         {
-            var users = await userService.List(name, dptId, locId);
+            if (stus.HasValue && (stus.Value < byte.MinValue || stus.Value > byte.MaxValue || !Enum.IsDefined(typeof(UserSuspensionState), (byte)stus.Value)))
+                return Results.BadRequest(new { Message = "Invalid user status." });
+
+            UserSuspensionState? status = stus.HasValue ? (UserSuspensionState?)stus.Value : null;
+
+            var users = await userService.List(name, dptId, locId, status);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.UserMapper.ToDtoList(users));
         }
 

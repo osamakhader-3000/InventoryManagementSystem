@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 
 namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces
 {
@@ -9,7 +10,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
     {
         Task Create(User user);
         Task<User?> GetById(Guid id);
-        Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId);
+        Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId, UserSuspensionState? status);
         Task Update(User user);
         Task<bool> Suspend(Guid id);
         Task<bool> Unsuspend(Guid id);

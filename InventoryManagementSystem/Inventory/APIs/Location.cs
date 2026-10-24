@@ -51,7 +51,7 @@ namespace InventoryManagementSystem.Inventory.APIs
         private static async Task<IResult> DeleteLocation([FromServices] ILocationService locationService, [FromServices] IUserService userService, Guid id)
         {
             //check if any users are associated with this location before deleting
-            var usersInLocation = await userService.List(null, null, id);
+            var usersInLocation = await userService.List(null, null, id, null);
 
             if (usersInLocation.Any())
             {

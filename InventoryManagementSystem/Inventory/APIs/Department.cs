@@ -48,7 +48,7 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> DeleteDepartment([FromServices] IDepartmentService departmentService, [FromServices] IUserService userService, Guid id)
         {
-            var usersInDepartment = await userService.List(null, id, null);
+            var usersInDepartment = await userService.List(null, id, null, null);
 
             if (usersInDepartment.Any())
             {

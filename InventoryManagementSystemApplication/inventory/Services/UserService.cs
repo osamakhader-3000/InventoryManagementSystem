@@ -1,6 +1,7 @@
 ﻿using InventoryManagementSystemApplication.inventory.Exceptions;
 using InventoryManagementSystemApplication.inventory.Interfaces;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using IUnitOfWork = SecurityApplicationLogic.Interfaces.IUnitOfWork;
 using System;
@@ -31,9 +32,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
             await _userRepository.Create(user);
             return user.Id;
         }
-        public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId)
+        public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId, UserSuspensionState? status)
         {
-            return await _userRepository.List(name, departmentId, locationId);
+            return await _userRepository.List(name, departmentId, locationId, status);
         }
         public async Task<User?> Get(Guid userId)
         {
