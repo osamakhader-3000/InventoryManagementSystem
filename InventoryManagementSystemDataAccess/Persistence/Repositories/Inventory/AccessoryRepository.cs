@@ -24,10 +24,15 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return _context.SaveChangesAsync();
         }
 
-        public Task Delete(Guid id)
+        public async Task Delete(Guid id)
         {
-            _context.InventoryAccessories.Remove(new Invent.Accessory { Id = id });
-            return _context.SaveChangesAsync();
+            // FindAsync returns the already-tracked instance (e.g. loaded by GetById), avoiding duplicate tracking
+            Invent.Accessory? dbAccessory = await _context.InventoryAccessories.FindAsync(id);
+            if (dbAccessory == null)
+                return;
+
+            _context.InventoryAccessories.Remove(dbAccessory);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Accessory?> GetById(Guid id)
