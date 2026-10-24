@@ -13,7 +13,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 user.Id,
                 user.Name,
                 user.Department.ToDomainModel(),
-                user.Location.ToDomainModel());
+                user.Location.ToDomainModel(),
+                (InventoryManagementSystemDomain.modules.inventory.Enums.UserSuspensionState)user.IsSuspended);
         }
 
         public static Invent.User ToDataAccessModel(this Domain.User user)
@@ -23,7 +24,8 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 Id = user.Id,
                 Name = user.Name,
                 DepartmentId = user.Department.Id,
-                LocationId = user.Location.Id
+                LocationId = user.Location.Id,
+                IsSuspended = (byte)user.IsSuspended
             };
         }
     }

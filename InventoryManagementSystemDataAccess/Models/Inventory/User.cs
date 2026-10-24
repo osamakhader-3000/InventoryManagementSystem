@@ -14,5 +14,7 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
+
+        public byte IsSuspended { get; set; } = 0;
     }
 }

@@ -7,5 +7,7 @@
         public Department Department { get; set; } = new Department();
 
         public Location Location { get; set; } = new Location();
+
+        public byte IsSuspended { get; set; } = 0;
     }
 }

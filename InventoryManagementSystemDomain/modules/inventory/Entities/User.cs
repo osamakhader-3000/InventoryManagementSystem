@@ -13,6 +13,8 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public Location Location { get; private set; }
 
+        public Enums.UserSuspensionState IsSuspended { get; private set; } = Enums.UserSuspensionState.Active;
+
         private User(Guid id, Department department, Location location)
         {
             Id = id;
@@ -28,11 +30,12 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             };
         }
 
-        public static User Reconstitute(Guid id, string name, Department department, Location location)
-        {           
+        public static User Reconstitute(Guid id, string name, Department department, Location location, Enums.UserSuspensionState isSuspended = Enums.UserSuspensionState.Active)
+        {
             return new User(id, department, location)
             {
-                Name = name
+                Name = name,
+                IsSuspended = isSuspended
             };
         }
     }

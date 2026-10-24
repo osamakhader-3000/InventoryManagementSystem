@@ -11,7 +11,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 Id = user.Id,
                 Name = user.Name,
                 Department = DepartmentMapper.ToDto(user.Department),
-                Location = LocationMapper.ToDto(user.Location)
+                Location = LocationMapper.ToDto(user.Location),
+                IsSuspended = (byte)user.IsSuspended
             };
         }
 

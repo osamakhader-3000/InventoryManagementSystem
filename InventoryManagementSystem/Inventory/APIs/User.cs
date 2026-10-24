@@ -1,5 +1,7 @@
+using InventoryManagementSystemApplication.inventory.Exceptions;
 using InventoryManagementSystemApplication.inventory.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 using DomainEntities = InventoryManagementSystemDomain.modules.inventory.Entities;
 
@@ -14,7 +16,8 @@ namespace InventoryManagementSystem.Inventory.APIs
             userGroup.MapGet("/Get/{id}", GetUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             userGroup.MapPost("/create", CreateUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
             userGroup.MapPut("/update", UpdateUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
-            userGroup.MapDelete("/delete/{id}", DeleteUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            userGroup.MapPut("/suspend/{id}", SuspendUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
+            userGroup.MapPut("/unsuspend/{id}", UnsuspendUser).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
         private static async Task<IResult> ListUsers([FromServices] IUserService userService,string? name,Guid? dptId,Guid? locId)
@@ -64,14 +67,52 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteUser([FromServices] IUserService userService, [FromServices] IAssignmentService assignmentService, Guid id)
+        private static async Task<IResult> SuspendUser(HttpContext http, [FromServices] IUserService userService, Guid id)
         {
-            var userAssignments = await assignmentService.List(id, null, null, null, null, null, null);
-            if (userAssignments.Any())
-                return Results.Conflict("Cannot delete user because they have one or more assignments.");
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
 
-            await userService.Delete(id);
-            return Results.NoContent();
+            var user = await userService.Get(id);
+            if (user == null)
+                return Results.NotFound();
+
+            try
+            {
+                await userService.Suspend(id, agentId.Value);
+                return Results.NoContent();
+            }
+            catch (UserAlreadySuspendedException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+            catch (AssignmentAlreadyReturnedException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+        }
+
+        private static async Task<IResult> UnsuspendUser([FromServices] IUserService userService, Guid id)
+        {
+            var user = await userService.Get(id);
+            if (user == null)
+                return Results.NotFound();
+
+            try
+            {
+                await userService.Unsuspend(id);
+                return Results.NoContent();
+            }
+            catch (UserNotSuspendedException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+        }
+
+        private static Guid? GetAgentId(HttpContext http)
+        {
+            string? userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(userId, out Guid agentId) ? agentId : null;
         }
     }
 }

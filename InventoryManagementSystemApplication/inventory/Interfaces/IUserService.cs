@@ -15,6 +15,9 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 
         public Task Update(User user);
 
-        public Task Delete(Guid userId);
+        // Also returns every open assignment of the user, freeing their devices and accessories
+        public Task Suspend(Guid userId, Guid agentId);
+
+        public Task Unsuspend(Guid userId);
     }
 }

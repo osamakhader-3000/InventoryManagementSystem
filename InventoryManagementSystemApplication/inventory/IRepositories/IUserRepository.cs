@@ -11,6 +11,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfac
         Task<User?> GetById(Guid id);
         Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId);
         Task Update(User user);
-        Task Delete(Guid id);
+        Task<bool> Suspend(Guid id);
+        Task<bool> Unsuspend(Guid id);
     }
 }

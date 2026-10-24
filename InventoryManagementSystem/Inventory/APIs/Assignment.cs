@@ -77,6 +77,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (assignedUser == null)
                 return Results.BadRequest("User not found");
 
+            if (assignedUser.IsSuspended == InventoryManagementSystemDomain.modules.inventory.Enums.UserSuspensionState.Suspended)
+                return Results.Conflict("User is suspended");
+
             var accessories = await accessoryService.ListByIds(dtoAssignment.Accessories.Select(a => a.Id).ToList());
             if (accessories == null)
                 return Results.BadRequest("Accessory not found");

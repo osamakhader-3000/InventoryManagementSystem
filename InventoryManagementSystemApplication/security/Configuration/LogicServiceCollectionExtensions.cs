@@ -18,6 +18,7 @@ namespace SecurityApplicationCore.Configuration
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.ILocationService, InventoryManagementSystemApplication.inventory.Services.LocationService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IAccessoryService, InventoryManagementSystemApplication.inventory.Services.AccessoryService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IDeviceService, InventoryManagementSystemApplication.inventory.Services.DeviceService>();
+            services.AddScoped<InventoryManagementSystemApplication.inventory.Services.AssignmentReleaser>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IUserService, InventoryManagementSystemApplication.inventory.Services.UserService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.IAssignmentService, InventoryManagementSystemApplication.inventory.Services.AssignmentService>();
             services.AddScoped<InventoryManagementSystemApplication.inventory.Interfaces.ITrialLogService, InventoryManagementSystemApplication.inventory.Services.TrialLogService>();

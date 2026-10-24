@@ -17,18 +17,21 @@ namespace InventoryManagementSystemApplication.inventory.Services
         private readonly IDeviceRepository _deviceRepository;
         private readonly ITrialLogRepository _trialLogRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AssignmentReleaser _assignmentReleaser;
         public AssignmentService(
             IAssignmentRepository assignmentRepository,
             IAccessoryRepository accessoryRepository,
             IDeviceRepository deviceRepository,
             ITrialLogRepository trialLogRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            AssignmentReleaser assignmentReleaser)
         {
             _assignmentRepository = assignmentRepository;
             _accessoryRepository = accessoryRepository;
             _deviceRepository = deviceRepository;
             _trialLogRepository = trialLogRepository;
             _unitOfWork = unitOfWork;
+            _assignmentReleaser = assignmentReleaser;
         }
 
         public async Task<long> Create(Assignment assignment, Guid agentId)
@@ -57,21 +60,7 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 if (existingAssignment == null)
                     return;
 
-                // Rows returned before returns started deleting still exist; their device and accessories are already released
-                if (existingAssignment.Activity == AssignmentActivity.Returned)
-                    throw new AssignmentAlreadyReturnedException(assignmentId);
-
-                // Delete first: a concurrent return of the same assignment gets false here and rolls back before releasing anything twice
-                if (!await _assignmentRepository.Delete(assignmentId))
-                    throw new AssignmentAlreadyReturnedException(assignmentId);
-
-                await _deviceRepository.MarkAvailable(existingAssignment.Device.Id);
-
-                // Release only this assignment's share; other assignments may still hold the same accessory
-                foreach (var accessoryId in DistinctAccessoryIds(existingAssignment))
-                    await _accessoryRepository.DecrementAssignedQuantity(accessoryId);
-
-                await AddTrialLog(existingAssignment, TransactionType.Return, agentId);
+                await _assignmentReleaser.Release(existingAssignment, agentId);
             });
         }
 

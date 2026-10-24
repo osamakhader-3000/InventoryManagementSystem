@@ -1,6 +1,7 @@
 ﻿using InventoryManagementSystemDataAccess.Mappers.Inventory;
 using InventoryManagementSystemDataAccess.Persistence.Extensions;
 using InventoryManagementSystemDomain.modules.inventory.Entities;
+using InventoryManagementSystemDomain.modules.inventory.Enums;
 using InventoryManagementSystemDomain.modules.inventory.RepositoriesInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -31,10 +32,23 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return _context.SaveChangesAsync();
         }
 
-        public Task Delete(Guid id)
+        public Task<bool> Suspend(Guid id)
         {
-            _context.InventoryUsers.Remove(new Invent.User { Id = id });
-            return _context.SaveChangesAsync();
+            return SetSuspensionState(id, UserSuspensionState.Active, UserSuspensionState.Suspended);
+        }
+
+        public Task<bool> Unsuspend(Guid id)
+        {
+            return SetSuspensionState(id, UserSuspensionState.Suspended, UserSuspensionState.Active);
+        }
+
+        // Conditional update: returns false when the user is missing or not in the expected state, so concurrent calls can't both succeed
+        private async Task<bool> SetSuspensionState(Guid id, UserSuspensionState from, UserSuspensionState to)
+        {
+            int affectedRows = await _context.InventoryUsers
+                .Where(x => x.Id == id && x.IsSuspended == (byte)from)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsSuspended, (byte)to));
+            return affectedRows == 1;
         }
 
         public async Task<User?> GetById(Guid id)
