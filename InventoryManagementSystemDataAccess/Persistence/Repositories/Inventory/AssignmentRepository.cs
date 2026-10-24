@@ -100,7 +100,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 query = query.WhereContainsIgnoreCase(x => x.Device.Model, model);
 
             if (!string.IsNullOrEmpty(serialNumber))
-                query = query.Where(x => x.Device.SerialNumber == serialNumber);
+                query = query.WhereContainsIgnoreCase(x => x.Device.SerialNumber, serialNumber);
 
             if (isReturned.HasValue)
             {

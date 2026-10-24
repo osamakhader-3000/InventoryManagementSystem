@@ -60,7 +60,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 query = query.WhereContainsIgnoreCase(x => x.Model, model);            
 
             if (!string.IsNullOrEmpty(serialNumber))            
-                query = query.Where(x => x.SerialNumber == serialNumber);            
+                query = query.WhereContainsIgnoreCase(x => x.SerialNumber, serialNumber);            
 
             if (purchasedDate.HasValue)
             {

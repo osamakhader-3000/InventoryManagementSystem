@@ -91,7 +91,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             
 
             if (!string.IsNullOrEmpty(serialNumber))
-                query = query.Where(x => x.SerialNumber == serialNumber);
+                query = query.WhereContainsIgnoreCase(x => x.SerialNumber ?? string.Empty, serialNumber);
 
             if (!string.IsNullOrEmpty(model))
                 query = query.WhereContainsIgnoreCase(x => x.Model?? string.Empty, model);
