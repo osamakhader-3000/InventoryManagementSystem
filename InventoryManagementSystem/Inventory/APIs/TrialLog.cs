@@ -13,19 +13,19 @@ namespace InventoryManagementSystem.Inventory.APIs
 
         private static async Task<IResult> ListTrialLogs([FromServices] ITrialLogService trialLogService
             , Guid? userid
-            , Guid? depid
             , DateTime? eventDate
             , int? ta
             , string? sn
             , string? model
             ,string? status
-            ,Guid? lctnId)
+            ,string? lctn
+            ,Guid? agentId)
         {
             InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transactionType = null;
             if (ta.HasValue)            
                 transactionType = (InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType)ta.Value;
 
-            var trialLogs = await trialLogService.List(userid, depid, eventDate, transactionType, sn, model, status, lctnId);
+            var trialLogs = await trialLogService.List(userid, eventDate, transactionType, sn, model, status, lctn, agentId);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.TrialLogMapper.ToDtoList(trialLogs));
         }
     }

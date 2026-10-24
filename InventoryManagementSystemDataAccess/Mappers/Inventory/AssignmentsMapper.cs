@@ -8,7 +8,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
 {
     internal static class AssignmentsMapper
     {
-        public static Domain.Assignment ToDomainModel(this Invent.Assignment assignment)
+        public static Domain.Assignment ToDomainModel(this Invent.Assignment assignment, DateTime? lastEventDate)
         {
             return Domain.Assignment.Reconstitute(
                 assignment.Id,
@@ -19,7 +19,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 assignment.AssignmentAccessories.ToDomainModelList(a => a.Accessory.ToDomainModel()),
                 assignment.Remarks,
                 assignment.IsReturned == 0 ? DomainEnums.AssignmentActivity.Active : DomainEnums.AssignmentActivity.Returned,
-                assignment.Device.TrialLogs.OrderByDescending(t => t.EventDate).Select(t => (DateTime?)t.EventDate).FirstOrDefault());
+                lastEventDate);
         }
     }
 }

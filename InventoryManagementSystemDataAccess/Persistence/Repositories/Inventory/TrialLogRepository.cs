@@ -19,36 +19,57 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             _context = context;
         }
 
-        public Task Create(TrialLog trialLog)
+        // Copies the device, user and agent details into the log so it survives their deletion
+        public async Task Create(TrialLog trialLog)
         {
+            var device = await _context.InventoryDevices
+                .Where(x => x.Id == trialLog.DeviceId)
+                .Select(x => new { x.Model, x.SerialNumber, x.Status })
+                .FirstOrDefaultAsync();
+
+            var user = await _context.InventoryUsers
+                .Where(x => x.Id == trialLog.UserId)
+                .Select(x => new { x.Name, x.LocationId, LocationName = x.Location.Name })
+                .FirstOrDefaultAsync();
+
+            var agentName = await _context.Users
+                .Where(x => x.Id == trialLog.AgentId)
+                .Select(x => x.UserName)
+                .FirstOrDefaultAsync();
+
             var dbTrialLog = new Invent.TrialLog
             {
                 DeviceId = trialLog.DeviceId,
                 UserId = trialLog.UserId,
                 EventDate = trialLog.EventDate,
-                TransactionType = (byte)trialLog.TransactionType,
-                AgentId = trialLog.AgentId
+                TransactionTypeId = (byte)trialLog.TransactionType,
+                TransactionType = trialLog.TransactionType.ToString(),
+                AgentId = trialLog.AgentId,
+                Model = device?.Model,
+                SerialNumber = device?.SerialNumber,
+                Status = device?.Status,
+                UserName = user?.Name,
+                LocationId = user?.LocationId,
+                Location = user?.LocationName,
+                AgentName = agentName
             };
 
             _context.InventoryTrialLogs.Add(dbTrialLog);
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<List<TrialLog>> ListAll(Guid? userId, Guid? departmentId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, Guid? locationId)
+        public async Task<List<TrialLog>> ListAll(Guid? userId, DateTime? eventDate, Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId)
         {
-            IQueryable<Invent.TrialLog> query = _context.InventoryTrialLogs
-                .Include(x => x.Device)
-                .Include(x => x.User).ThenInclude(x => x.Location)
-                .Include(x => x.Agent);
+            IQueryable<Invent.TrialLog> query = _context.InventoryTrialLogs;
 
             if (userId.HasValue)
                 query = query.Where(x => x.UserId == userId.Value);
 
-            if (departmentId.HasValue)
-                query = query.Where(x => x.User.DepartmentId == departmentId.Value);
+            if (agentId.HasValue)
+                query = query.Where(x => x.AgentId == agentId.Value);
 
-            if (locationId.HasValue)
-                query = query.Where(x => x.User.LocationId == locationId.Value);
+            if (!string.IsNullOrEmpty(location))
+                query = query.WhereContainsIgnoreCase(x => x.Location ?? string.Empty, location);
 
             if (eventDate.HasValue)
             {
@@ -57,20 +78,18 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 query = query.Where(x => x.EventDate >= date && x.EventDate < nextDay);
             }
 
-            if (transaction.HasValue)
-            {
-                byte transactionType = (byte)transaction.Value;
-                query = query.Where(x => x.TransactionType == transactionType);
-            }
+            if (transaction.HasValue)            
+                query = query.Where(x => x.TransactionTypeId == (byte)transaction.Value);
+            
 
             if (!string.IsNullOrEmpty(serialNumber))
-                query = query.Where(x => x.Device.SerialNumber == serialNumber);
+                query = query.Where(x => x.SerialNumber == serialNumber);
 
             if (!string.IsNullOrEmpty(model))
-                query = query.WhereContainsIgnoreCase(x => x.Device.Model, model);
+                query = query.WhereContainsIgnoreCase(x => x.Model?? string.Empty, model);
 
             if (!string.IsNullOrEmpty(status))
-                query = query.Where(x => x.Device.Status == status);
+                query = query.WhereContainsIgnoreCase(x => x.Status ?? string.Empty, status);
 
             var dbTrialLogs = await query
                 .OrderByDescending(x => x.EventDate)

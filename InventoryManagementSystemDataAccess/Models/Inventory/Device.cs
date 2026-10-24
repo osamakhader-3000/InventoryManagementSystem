@@ -25,8 +25,6 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public byte IsAssigned { get; set; }
 
-        public List<TrialLog> TrialLogs { get; set; } = new List<TrialLog>();
-
         public byte IsSold { get; set; } = 0;
 
     }

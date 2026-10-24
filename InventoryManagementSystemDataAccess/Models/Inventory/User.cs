@@ -14,7 +14,5 @@ namespace InventoryManagementSystemDataAccess.Models.Inventory
 
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
-
-        public List<TrialLog> TrialLogs { get; set; } = new List<TrialLog>();
     }
 }

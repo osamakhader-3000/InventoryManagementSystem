@@ -14,9 +14,9 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             _trialLogRepository = trialLogRepository;
         }
-        public async Task<List<TrialLog>> List(Guid? userid, Guid? departmentId, DateTime? eventDate, InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, Guid? locationId)
+        public async Task<List<TrialLog>> List(Guid? userid, DateTime? eventDate, InventoryManagementSystemDomain.modules.inventory.Enums.TransactionType? transaction, string? serialNumber, string? model, string? status, string? location, Guid? agentId)
         {
-            return await _trialLogRepository.ListAll(userid, departmentId, eventDate, transaction, serialNumber, model, status, locationId);
+            return await _trialLogRepository.ListAll(userid, eventDate, transaction, serialNumber, model, status, location, agentId);
         }
     }
 }

@@ -103,24 +103,8 @@ namespace InventoryManagementSystemDataAccess.Persistence
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Many-to-one: a trial log has one user, one device and one agent (security user)
-            modelBuilder.Entity<Inventory.TrialLog>(b =>
-            {
-                b.HasOne(e => e.User)
-                    .WithMany(e => e.TrialLogs)
-                    .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                b.HasOne(e => e.Device)
-                    .WithMany(e => e.TrialLogs)
-                    .HasForeignKey(e => e.DeviceId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                b.HasOne(e => e.Agent)
-                    .WithMany()
-                    .HasForeignKey(e => e.AgentId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            // Trial logs have no relationships: they keep a snapshot of the device, user and agent
+            // so deleting any of those leaves the log untouched.
 
             // Many-to-many: an assignment has many accessories, an accessory belongs to many assignments
             modelBuilder.Entity<Inventory.AssignmentAccessory>(b =>

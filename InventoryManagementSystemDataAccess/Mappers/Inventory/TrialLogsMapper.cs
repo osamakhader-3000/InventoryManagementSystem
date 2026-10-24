@@ -12,17 +12,17 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
         {
             return Domain.TrialLog.Reconstitute(
                 trialLog.Id,
-                trialLog.DeviceId,
-                trialLog.UserId,
-                trialLog.EventDate,
-                (DomainEnums.TransactionType)trialLog.TransactionType,
-                trialLog.AgentId,
-                trialLog.Device?.Model,
-                trialLog.Device?.SerialNumber,
-                trialLog.User?.Name,
-                trialLog.Agent?.UserName,
-                trialLog.User?.Location?.Name,
-                trialLog.Device?.Status);
+                trialLog.DeviceId.GetValueOrDefault(),
+                trialLog.UserId.GetValueOrDefault(),
+                trialLog.EventDate.GetValueOrDefault(),
+                (DomainEnums.TransactionType)trialLog.TransactionTypeId.GetValueOrDefault(),
+                trialLog.AgentId.GetValueOrDefault(),
+                trialLog.Model,
+                trialLog.SerialNumber,
+                trialLog.UserName,
+                trialLog.AgentName,
+                trialLog.Location,
+                trialLog.Status);
         }
     }
 }

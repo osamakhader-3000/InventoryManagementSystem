@@ -21,10 +21,24 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         private IQueryable<Invent.Assignment> AssignmentsWithDetails()
         {
             return _context.InventoryAssignments
-                .Include(x => x.Device).ThenInclude(x => x.TrialLogs.OrderByDescending(t => t.EventDate).Take(1))
+                .Include(x => x.Device)
                 .Include(x => x.AssignedUser).ThenInclude(x => x.Department)
                 .Include(x => x.AssignedUser).ThenInclude(x => x.Location)
                 .Include(x => x.AssignmentAccessories).ThenInclude(x => x.Accessory);
+        }
+
+        // Trial logs have no navigation to devices, so the latest event date per device is looked up separately
+        private async Task<List<Assignment>> ToDomainModelsWithLastEventDate(List<Invent.Assignment> dbAssignments)
+        {
+            var deviceIds = dbAssignments.Select(x => x.DeviceId).Distinct().ToList();
+            var lastEventDates = await _context.InventoryTrialLogs
+                .Where(t => t.DeviceId.HasValue && deviceIds.Contains(t.DeviceId.Value))
+                .GroupBy(t => t.DeviceId!.Value)
+                .Select(g => new { DeviceId = g.Key, LastEventDate = g.Max(t => t.EventDate) })
+                .ToDictionaryAsync(x => x.DeviceId, x => x.LastEventDate);
+
+            return dbAssignments.ToDomainModelList(x =>
+                x.ToDomainModel(lastEventDates.TryGetValue(x.DeviceId, out var date) ? date : null));
         }
 
         private async Task<List<Guid>> LoadAccessoryIds(Assignment assignment)
@@ -59,7 +73,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             if (dbAssignment == null)
                 return null;
 
-            return dbAssignment.ToDomainModel();
+            return (await ToDomainModelsWithLastEventDate([dbAssignment])).FirstOrDefault();
         }
 
         public async Task<List<Assignment>> ListAll(Guid? userId, Guid? depId, Guid? locationId, DateTime? purDate, string? model, string? serialNumber, bool? isReturned)
@@ -95,7 +109,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             }
 
             var dbAssignments = await query.ToListAsync();
-            return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
+            return await ToDomainModelsWithLastEventDate(dbAssignments);
         }
 
         // Accessory links are removed explicitly so this doesn't depend on the database FK cascading.
@@ -117,7 +131,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             var dbAssignments = await AssignmentsWithDetails()
                 .Where(a => a.AssignmentAccessories.Any(ac => ac.AccessoryId == accessoryId))
                 .ToListAsync();
-            return dbAssignments.ToDomainModelList(x => x.ToDomainModel());
+            return await ToDomainModelsWithLastEventDate(dbAssignments);
         }
 
     }

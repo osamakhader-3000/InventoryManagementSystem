@@ -64,15 +64,11 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteUser([FromServices] IUserService userService, [FromServices] IAssignmentService assignmentService, [FromServices] ITrialLogService trialLogService, Guid id)
+        private static async Task<IResult> DeleteUser([FromServices] IUserService userService, [FromServices] IAssignmentService assignmentService, Guid id)
         {
             var userAssignments = await assignmentService.List(id, null, null, null, null, null, null);
             if (userAssignments.Any())
                 return Results.Conflict("Cannot delete user because they have one or more assignments.");
-
-            var userTrialLogs = await trialLogService.List(id, null, null, null, null, null, null, null);
-            if (userTrialLogs.Any())
-                return Results.Conflict("Cannot delete user because they have one or more trial logs.");
 
             await userService.Delete(id);
             return Results.NoContent();
