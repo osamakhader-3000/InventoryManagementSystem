@@ -47,6 +47,10 @@ namespace InventoryManagementSystemApplication.inventory.Services
         {
             return await _userRepository.GetById(userId);
         }
+        public async Task<User?> GetByName(string name)
+        {
+            return await _userRepository.GetByName(name);
+        }
         public async Task Update(User user, Guid agentId)
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () =>

@@ -61,6 +61,18 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbUser.ToDomainModel();
         }
 
+        // Case-insensitive: "John" and "john" are treated as the same name
+        public async Task<User?> GetByName(string name)
+        {
+            string lowerName = name.ToLower();
+            Invent.User? dbUser = await UsersWithDepartment().AsNoTracking().FirstOrDefaultAsync(x => x.Name.ToLower() == lowerName);
+
+            if (dbUser == null)
+                return null;
+
+            return dbUser.ToDomainModel();
+        }
+
         public async Task<List<User>> List(string? name, Guid? departmentId, Guid? locationId, UserSuspensionState? status)
         {
             var query = UsersWithDepartment();

@@ -76,6 +76,8 @@ namespace InventoryManagementSystemDataAccess.Persistence
             // Many-to-one: a user has one department, a department has many users
             modelBuilder.Entity<Inventory.User>(b =>
             {
+                b.HasIndex(e => e.Name).IsUnique();
+
                 b.HasOne(e => e.Department)
                     .WithMany(e => e.Users)
                     .HasForeignKey(e => e.DepartmentId)

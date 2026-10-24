@@ -46,6 +46,9 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (agentId == null)
                 return Results.Unauthorized();
 
+            if (await userService.GetByName(dtoUser.Name) != null)
+                return Results.Conflict(new { Message = "A user with the same name already exists." });
+
             var department = await departmentService.Get(dtoUser.Department.Id);
             if (department == null)
                 return Results.BadRequest("Department not found");
@@ -69,6 +72,10 @@ namespace InventoryManagementSystem.Inventory.APIs
             // Without this an unknown id would update nothing yet still log an update
             if (await userService.Get(dtoUser.Id) == null)
                 return Results.NotFound();
+
+            DomainEntities.User? existingUser = await userService.GetByName(dtoUser.Name);
+            if (existingUser != null && existingUser.Id != dtoUser.Id)
+                return Results.Conflict(new { Message = "A user with the same name already exists." });
 
             var department = await departmentService.Get(dtoUser.Department.Id);
             if (department == null)

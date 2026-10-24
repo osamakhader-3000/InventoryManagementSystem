@@ -14,6 +14,8 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 
         public Task<User?> Get(Guid userId);
 
+        public Task<User?> GetByName(string name);
+
         public Task Update(User user, Guid agentId);
 
         // Also returns every open assignment of the user, freeing their devices and accessories
