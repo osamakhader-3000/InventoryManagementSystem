@@ -20,7 +20,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             _context = context;
         }
 
-        // Copies the device, user and agent details into the log so it survives their deletion
+        // Copies the device, user and agent details into the log so it survives their deletion; log a device delete before deleting it
         public async Task Create(TrialLog trialLog)
         {
             var device = await _context.InventoryDevices
@@ -28,7 +28,8 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 .Select(x => new { x.Model, x.SerialNumber, x.Status })
                 .FirstOrDefaultAsync();
 
-            var user = await _context.InventoryUsers
+            // Device events have no user, so their log has no user or location
+            var user = trialLog.UserId == null ? null : await _context.InventoryUsers
                 .Where(x => x.Id == trialLog.UserId)
                 .Select(x => new { x.Name, x.LocationId, LocationName = x.Location.Name })
                 .FirstOrDefaultAsync();

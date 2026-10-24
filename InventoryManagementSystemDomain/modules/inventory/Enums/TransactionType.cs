@@ -10,5 +10,10 @@ namespace InventoryManagementSystemDomain.modules.inventory.Enums
         Update = 1,
         Relocate = 2,
         Return = 3,
+        Suspend = 4,
+        Activate = 5,
+        Sell = 6,
+        Create = 7,
+        Delete = 8,
     }
 }

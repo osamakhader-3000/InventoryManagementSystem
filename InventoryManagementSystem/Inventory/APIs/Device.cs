@@ -1,5 +1,6 @@
 using InventoryManagementSystemApplication.inventory.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 using DomainEntities = InventoryManagementSystemDomain.modules.inventory.Entities;
 
@@ -35,8 +36,12 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.DeviceMapper.ToDto(device));
         }
 
-        private static async Task<IResult> CreateDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
+        private static async Task<IResult> CreateDevice(HttpContext http, [FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             DomainEntities.Device? existingDevice = await deviceService.GetBySerialNumber(dtoDevice.SerialNumber);
             if (existingDevice != null)
             {
@@ -53,12 +58,16 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.SoldPrice,
                 dtoDevice.Status);
 
-            var createdDeviceId = await deviceService.Create(device);
+            var createdDeviceId = await deviceService.Create(device, agentId.Value);
             return Results.Created($"/device/Get/{createdDeviceId}", new { Id = createdDeviceId });
         }
 
-        private static async Task<IResult> UpdateDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
+        private static async Task<IResult> UpdateDevice(HttpContext http, [FromServices] IDeviceService deviceService, [FromBody] Dto.Device dtoDevice)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             DomainEntities.Device? existingDevice = await deviceService.GetBySerialNumber(dtoDevice.SerialNumber);
 
             
@@ -80,12 +89,16 @@ namespace InventoryManagementSystem.Inventory.APIs
                 dtoDevice.Status);
             if (device == null)
                 return Results.BadRequest();
-            await deviceService.Update(device);
+            await deviceService.Update(device, agentId.Value);
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteDevice([FromServices] IDeviceService deviceService, Guid id)
+        private static async Task<IResult> DeleteDevice(HttpContext http, [FromServices] IDeviceService deviceService, Guid id)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             var existingDevice = await deviceService.Get(id);
 
             if (existingDevice == null)            
@@ -99,12 +112,22 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.BadRequest(new { Message = "Cannot delete a taken device." });            
             
 
-            await deviceService.Delete(id);
+            await deviceService.Delete(id, agentId.Value);
             return Results.Ok();
         }
 
-        private static async Task<IResult> SellDevice([FromServices] IDeviceService deviceService, [FromBody] Dto.SellDeviceRequest sellRequest)
+        private static Guid? GetAgentId(HttpContext http)
         {
+            string? userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(userId, out Guid agentId) ? agentId : null;
+        }
+
+        private static async Task<IResult> SellDevice(HttpContext http, [FromServices] IDeviceService deviceService, [FromBody] Dto.SellDeviceRequest sellRequest)
+        {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             if (sellRequest.Price < 0)
                 return Results.BadRequest(new { Message = "Sold price cannot be negative." });
 
@@ -120,7 +143,7 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.Conflict(new { Message = "Cannot sell a taken device." });
 
             // The checks above give specific messages; Sell re-checks atomically in case another request changed the device in between
-            if (!await deviceService.Sell(sellRequest.DeviceId, sellRequest.Price))
+            if (!await deviceService.Sell(sellRequest.DeviceId, sellRequest.Price, agentId.Value))
                 return Results.Conflict(new { Message = "Device is no longer available for sale." });
 
             return Results.Ok();

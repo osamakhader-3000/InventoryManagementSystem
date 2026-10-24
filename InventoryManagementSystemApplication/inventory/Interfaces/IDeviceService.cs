@@ -7,7 +7,7 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 {
     public interface IDeviceService
     {
-        public Task<Guid> Create(Device device);
+        public Task<Guid> Create(Device device, Guid agentId);
 
         public Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate,int? isAssigned);
 
@@ -15,10 +15,10 @@ namespace InventoryManagementSystemApplication.inventory.Interfaces
 
         public Task<Device?> GetBySerialNumber(string serialNumber);
 
-        public Task Update(Device device);
+        public Task Update(Device device, Guid agentId);
 
-        public Task Delete(Guid deviceId);
+        public Task Delete(Guid deviceId, Guid agentId);
 
-        public Task<bool> Sell(Guid deviceId, decimal soldPrice);
+        public Task<bool> Sell(Guid deviceId, decimal soldPrice, Guid agentId);
     }
 }

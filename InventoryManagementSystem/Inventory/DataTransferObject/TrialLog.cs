@@ -6,7 +6,7 @@ namespace InventoryManagementSystem.Inventory.DataTransferObject
         public Guid DeviceId { get; set; }
         public string DeviceModel { get; set; } = string.Empty;
         public string DeviceSerialNumber { get; set; } = string.Empty;
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
         public DateTime EventDate { get; set; }
         public byte TransactionType { get; set; }
