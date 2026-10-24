@@ -17,8 +17,8 @@ namespace InventoryManagementSystem.Inventory.Mappers
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
                 Status = device.Status,
-                IsTaken = device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken,
-                IsSold = device.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold
+                IsAssigned = (int)device.IsAssigned,
+                IsSold = (int)device.IsSold
             };
         }
 

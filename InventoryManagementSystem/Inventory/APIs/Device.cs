@@ -18,9 +18,12 @@ namespace InventoryManagementSystem.Inventory.APIs
             deviceGroup.MapPut("/sell", SellDevice).RequireAuthorization("VerifiedEmail", "ActiveAccount");
         }
 
-        private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService,string? model, string? sn,DateTime? purDate)
+        private static async Task<IResult> ListDevices([FromServices] IDeviceService deviceService,string? model, string? sn,DateTime? purDate,int? asign)
         {
-            var devices = await deviceService.List(model, sn, purDate);
+            if (asign is < byte.MinValue or > byte.MaxValue || asign.HasValue && !Enum.IsDefined(typeof(InventoryManagementSystemDomain.modules.inventory.Enums.AssignedStatus), (byte)asign.Value))
+                return Results.BadRequest(new { Message = "Invalid assigned status." });
+
+            var devices = await deviceService.List(model, sn, purDate, asign);
             return Results.Ok(InventoryManagementSystem.Inventory.Mappers.DeviceMapper.ToDtoList(devices));
         }
 
@@ -92,7 +95,7 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.Conflict(new { Message = "Device is already sold." });
 
 
-            if (existingDevice.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)            
+            if (existingDevice.IsAssigned == InventoryManagementSystemDomain.modules.inventory.Enums.AssignedStatus.Yes)            
                 return Results.BadRequest(new { Message = "Cannot delete a taken device." });            
             
 
@@ -113,7 +116,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (existingDevice.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold)
                 return Results.Conflict(new { Message = "Device is already sold." });
 
-            if (existingDevice.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
+            if (existingDevice.IsAssigned == InventoryManagementSystemDomain.modules.inventory.Enums.AssignedStatus.Yes)
                 return Results.Conflict(new { Message = "Cannot sell a taken device." });
 
             // The checks above give specific messages; Sell re-checks atomically in case another request changed the device in between

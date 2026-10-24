@@ -19,7 +19,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 device.Price,
                 device.SoldPrice ?? 0m,
                 device.Status?? string.Empty,
-                (InventoryManagementSystemDomain.modules.inventory.Enums.Availability)device.IsTaken,
+                (InventoryManagementSystemDomain.modules.inventory.Enums.AssignedStatus)device.IsAssigned,
                 (InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState)device.IsSold);
         }
 
@@ -36,7 +36,7 @@ namespace InventoryManagementSystemDataAccess.Mappers.Inventory
                 Price = device.Price,
                 SoldPrice = device.SoldPrice,
                 Status = device.Status,
-                IsTaken = (byte)device.IsTaken,
+                IsAssigned = (byte)device.IsAssigned,
                 IsSold = (byte)device.IsSold
             };
         }

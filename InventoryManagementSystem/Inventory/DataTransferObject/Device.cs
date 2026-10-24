@@ -12,7 +12,8 @@
         public decimal SoldPrice { get; set; } = 0m;
 
         public string Status { get; set; } = string.Empty;
-        public bool IsTaken { get; set; } = false;
-        public bool IsSold { get; set; } = false;
+        public int IsAssigned { get; set; } = 0;
+        public int IsSold { get; set; } = 0;
+
     }
 }

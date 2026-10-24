@@ -52,7 +52,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
             return dbDevice.ToDomainModel();
         }
 
-        public async Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate)
+        public async Task<List<Device>> List(string? model,string? serialNumber,DateTime? purchasedDate,int? isAssigned)
         {
             var query = _context.InventoryDevices.AsQueryable();
 
@@ -69,6 +69,12 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 query = query.Where(x => x.PurchasedDate >= dayStart && x.PurchasedDate < dayEnd);
             }
 
+            if (isAssigned.HasValue)
+            {
+                byte assignedStatus = (byte)isAssigned.Value;
+                query = query.Where(x => x.IsAssigned == assignedStatus);
+            }
+
             var dbDevices = await query.ToListAsync();
             return dbDevices.ToDomainModelList(x => x.ToDomainModel());
         }
@@ -77,7 +83,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         {
             var entry = _context.InventoryDevices.Update(device.ToDataAccessModel());
             // Availability is owned by assignments, so device edits must not overwrite it
-            entry.Property(x => x.IsTaken).IsModified = false;
+            entry.Property(x => x.IsAssigned).IsModified = false;
             // Sold state is owned by the sell flow
             entry.Property(x => x.IsSold).IsModified = false;
             return _context.SaveChangesAsync();
@@ -87,8 +93,8 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         public async Task<bool> MarkTaken(Guid id)
         {
             int affectedRows = await _context.InventoryDevices
-                .Where(x => x.Id == id && x.IsTaken == (byte)Availability.Available && x.IsSold == (byte)DeviceSoldState.NotSold)
-                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsTaken, (byte)Availability.Taken));
+                .Where(x => x.Id == id && x.IsAssigned == (byte)AssignedStatus.No && x.IsSold == (byte)DeviceSoldState.NotSold)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsAssigned, (byte)AssignedStatus.Yes));
             return affectedRows == 1;
         }
 
@@ -96,7 +102,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         public async Task<bool> MarkSold(Guid id, decimal soldPrice)
         {
             int affectedRows = await _context.InventoryDevices
-                .Where(x => x.Id == id && x.IsSold == (byte)DeviceSoldState.NotSold && x.IsTaken == (byte)Availability.Available)
+                .Where(x => x.Id == id && x.IsSold == (byte)DeviceSoldState.NotSold && x.IsAssigned == (byte)AssignedStatus.No)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(x => x.IsSold, (byte)DeviceSoldState.Sold)
                     .SetProperty(x => x.SoldPrice, soldPrice));
@@ -107,7 +113,7 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
         {
             return _context.InventoryDevices
                 .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsTaken, (byte)Availability.Available));
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsAssigned, (byte)AssignedStatus.No));
         }
     }
 }

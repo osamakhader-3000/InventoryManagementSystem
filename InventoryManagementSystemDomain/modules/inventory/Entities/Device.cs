@@ -20,7 +20,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
 
         public string Status { get; private set; } = string.Empty;
 
-        public Enums.Availability IsTaken { get; private set; } = Enums.Availability.Taken;
+        public Enums.AssignedStatus IsAssigned { get; private set; } = Enums.AssignedStatus.No;
 
         public Enums.DeviceSoldState IsSold { get; private set; } = Enums.DeviceSoldState.NotSold;
 
@@ -49,7 +49,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 Price = price,
                 SoldPrice = soldPrice,
                 Status = status,
-                IsTaken = Enums.Availability.Available
+                IsAssigned = Enums.AssignedStatus.No
             };
         }
 
@@ -63,7 +63,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             decimal price,
             decimal soldPrice,
             string status,
-            Enums.Availability isAvailable = Enums.Availability.Available,
+            Enums.AssignedStatus isAvailable = Enums.AssignedStatus.No,
             Enums.DeviceSoldState isSold = Enums.DeviceSoldState.NotSold)
         {
             return new Device(id)
@@ -76,7 +76,7 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
                 Price = price,
                 SoldPrice = soldPrice,
                 Status = status,
-                IsTaken = isAvailable,
+                IsAssigned = isAvailable,
                 IsSold = isSold
             };
         }

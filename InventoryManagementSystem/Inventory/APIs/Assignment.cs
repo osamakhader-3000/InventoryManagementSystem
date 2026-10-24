@@ -67,7 +67,7 @@ namespace InventoryManagementSystem.Inventory.APIs
             if (device.IsSold == InventoryManagementSystemDomain.modules.inventory.Enums.DeviceSoldState.Sold)
                 return Results.Conflict("Device is sold");
 
-            if (device.IsTaken == InventoryManagementSystemDomain.modules.inventory.Enums.Availability.Taken)
+            if (device.IsAssigned == InventoryManagementSystemDomain.modules.inventory.Enums.AssignedStatus.Yes)
                 return Results.Conflict("Device is already assigned");
 
             if (dtoAssignment.AssignedUser == null)
