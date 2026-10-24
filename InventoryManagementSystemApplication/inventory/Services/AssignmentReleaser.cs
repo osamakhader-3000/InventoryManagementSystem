@@ -41,16 +41,23 @@ namespace InventoryManagementSystemApplication.inventory.Services
 
             await _deviceRepository.MarkAvailable(assignment.Device.Id);
 
-            // Release only this assignment's share; other assignments may still hold the same accessory
-            foreach (var accessoryId in assignment.Accessories.Select(x => x.Id).Distinct())
-                await _accessoryRepository.DecrementAssignedQuantity(accessoryId);
-
             await _trialLogRepository.Create(TrialLog.Create(
                 assignment.Device.Id,
                 assignment.AssignedUser.Id,
                 DateTime.UtcNow,
                 TransactionType.Return,
                 agentId));
+
+            // Release only this assignment's share; other assignments may still hold the same accessory
+            foreach (var accessory in assignment.Accessories.DistinctBy(x => x.Id))
+            {
+                await _accessoryRepository.DecrementAssignedQuantity(accessory.Id);
+                await _trialLogRepository.Create(TrialLog.CreateForAccessory(
+                    accessory.Name,
+                    DateTime.UtcNow,
+                    TransactionType.Return,
+                    agentId));
+            }
         }
     }
 }

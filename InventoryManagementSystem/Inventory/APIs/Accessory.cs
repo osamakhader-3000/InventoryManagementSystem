@@ -1,6 +1,7 @@
 using InventoryManagementSystemApplication.inventory.Interfaces;
 using InventoryManagementSystemApplication.inventory.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using DomainEntities = InventoryManagementSystemDomain.modules.inventory.Entities;
 using Dto = InventoryManagementSystem.Inventory.DataTransferObject;
 
@@ -41,16 +42,24 @@ namespace InventoryManagementSystem.Inventory.APIs
             return Results.Ok(dtoAccessory);
         }
 
-        private static async Task<IResult> CreateAccessory([FromServices] IAccessoryService accessoryService, [FromBody] Dto.Accessory dtoAccessory)
+        private static async Task<IResult> CreateAccessory(HttpContext http, [FromServices] IAccessoryService accessoryService, [FromBody] Dto.Accessory dtoAccessory)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             DomainEntities.Accessory accessory = DomainEntities.Accessory.Create(dtoAccessory.Name, dtoAccessory.Quantity,0, dtoAccessory.Date);
 
-            var createdAccessoryId = await accessoryService.Create(accessory);
+            var createdAccessoryId = await accessoryService.Create(accessory, agentId.Value);
             return Results.Created($"/accessory/Get/{createdAccessoryId}", new { Id = createdAccessoryId });
         }
 
-        private static async Task<IResult> UpdateAccessory([FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, [FromBody] Dto.Accessory dtoAccessory)
+        private static async Task<IResult> UpdateAccessory(HttpContext http, [FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, [FromBody] Dto.Accessory dtoAccessory)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             DomainEntities.Accessory? existingAccessory = await accessoryService.Get(dtoAccessory.Id);
             if (existingAccessory == null)
                 return Results.NotFound();
@@ -69,12 +78,16 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.BadRequest("Cannot update accessory because the new quantity is less than the quantity already assigned to assignments.");
             }
 
-            await accessoryService.Update(accessory);
+            await accessoryService.Update(accessory, agentId.Value);
             return Results.Ok();
         }
 
-        private static async Task<IResult> DeleteAccessory([FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, Guid id)
+        private static async Task<IResult> DeleteAccessory(HttpContext http, [FromServices] IAccessoryService accessoryService, [FromServices] IAssignmentService assignmentService, Guid id)
         {
+            Guid? agentId = GetAgentId(http);
+            if (agentId == null)
+                return Results.Unauthorized();
+
             var assignmentsWithAccessory = await assignmentService.ListByAccessoryId(id);
 
             if (assignmentsWithAccessory.Any())
@@ -82,8 +95,14 @@ namespace InventoryManagementSystem.Inventory.APIs
                 return Results.BadRequest("Cannot delete accessory because it is assigned to one or more assignments.");
             }
 
-            await accessoryService.Delete(id);
+            await accessoryService.Delete(id, agentId.Value);
             return Results.Ok();
+        }
+
+        private static Guid? GetAgentId(HttpContext http)
+        {
+            string? userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(userId, out Guid agentId) ? agentId : null;
         }
     }
 }

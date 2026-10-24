@@ -50,6 +50,18 @@ namespace InventoryManagementSystemDomain.modules.inventory.Entities
             };
         }
 
+        // Accessory events have no device or user; the accessory name is kept in the model
+        public static TrialLog CreateForAccessory(string accessoryName, DateTime eventDate, TransactionType transactionType, Guid agentId)
+        {
+            return new TrialLog(null)
+            {
+                EventDate = eventDate,
+                TransactionType = transactionType,
+                AgentId = agentId,
+                DeviceModel = accessoryName
+            };
+        }
+
         public static TrialLog Reconstitute(
             long id,
             Guid? deviceId,

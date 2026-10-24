@@ -48,7 +48,8 @@ namespace InventoryManagementSystemDataAccess.Persistence.Repositories.Inventory
                 TransactionTypeId = (byte)trialLog.TransactionType,
                 TransactionType = trialLog.TransactionType.ToString(),
                 AgentId = trialLog.AgentId,
-                Model = device?.Model,
+                // Accessory events have no device and carry the accessory name as their model
+                Model = device?.Model ?? trialLog.DeviceModel,
                 SerialNumber = device?.SerialNumber,
                 Status = device?.Status,
                 UserName = user?.Name,

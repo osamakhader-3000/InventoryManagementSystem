@@ -47,6 +47,8 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 await IncrementAssignedQuantities(DistinctAccessoryIds(assignment));
 
                 await AddTrialLog(assignment, TransactionType.Assign, agentId);
+
+                await AddAccessoryTrialLogs(assignment, TransactionType.Assign, agentId);
             });
 
             return createdAssignmentId;
@@ -89,6 +91,17 @@ namespace InventoryManagementSystemApplication.inventory.Services
                 DateTime.UtcNow,
                 transactionType,
                 agentId));
+        }
+
+        // One log per accessory, matching the single unit of stock each one takes
+        private async Task AddAccessoryTrialLogs(Assignment assignment, TransactionType transactionType, Guid agentId)
+        {
+            foreach (var accessory in assignment.Accessories.DistinctBy(x => x.Id))
+                await _trialLogRepository.Create(TrialLog.CreateForAccessory(
+                    accessory.Name,
+                    DateTime.UtcNow,
+                    transactionType,
+                    agentId));
         }
 
         private static List<Guid> DistinctAccessoryIds(Assignment assignment)
